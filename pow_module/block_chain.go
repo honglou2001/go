@@ -3,6 +3,7 @@ package pow_module
 import (
 	"time"
 	log "github.com/sirupsen/logrus"
+	"yqx_go/pow_module/transactions"
 )
 
 func init()  {
@@ -12,13 +13,13 @@ func init()  {
 // Block represents a block in the blockchain
 type Block struct {
 	TimeStamp int64
-	Transactions []*Transaction
+	Transactions []*transactions.Transaction
 	PrevBlockHash []byte
 	Hash []byte
 	Nonce int
 }
 
-func NewBlock(transactions []*Transaction, prewBlockHash []byte) *Block  {
+func NewBlock(transactions []*transactions.Transaction, prewBlockHash []byte) *Block  {
 	block := &Block{time.Now().Unix(), transactions,
 		prewBlockHash, []byte{}, 0}
 
