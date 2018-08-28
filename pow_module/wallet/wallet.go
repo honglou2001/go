@@ -7,6 +7,9 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/astaxie/beego"
+	"crypto/sha256"
+	"fmt"
+	"golang.org/x/crypto/ripemd160"
 )
 
 type Wallet struct {
@@ -58,3 +61,22 @@ func Decode(pemEncoded string, pemEncodedPub string) (*ecdsa.PrivateKey, *ecdsa.
 	return privateKey, publicKey
 }
 
+func Sha256(){
+	s := "sha256 芳华"
+
+	h := sha256.New()
+	h.Write([]byte(s))
+	bs := h.Sum(nil)
+
+	fmt.Printf("origin: %s, sha256 hash: %x\n", s, bs)
+}
+
+
+
+func Ripemd160() {
+	hasher := ripemd160.New()
+	hasher.Write([]byte("The quick brown fox jumps over the lazy dog"))
+	hashBytes := hasher.Sum(nil)
+	hashString := fmt.Sprintf("%x", hashBytes)
+	fmt.Println(hashString)
+}

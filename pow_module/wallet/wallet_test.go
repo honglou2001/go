@@ -36,3 +36,13 @@ func TestEncode(t *testing.T){
 		fmt.Println("Public keys do not match.")
 	}
 }
+
+func TestSha256(t *testing.T){
+	Sha256()
+}
+
+func TestRipemd160(t *testing.T){
+	Ripemd160()
+}
+
+
