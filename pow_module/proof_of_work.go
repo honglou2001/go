@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"crypto/sha256"
+	common "yqx_go/pow_module/common"
 )
 
 const targetBits = 24
@@ -31,10 +32,10 @@ func (pow *ProofOfWork) prepareData(nonce int) []byte  {
 	data := bytes.Join(
 		[][]byte{
 			pow.Block.PrevBlockHash,
-			pow.Block.HashTransactions(),
-			IntToHex(pow.Block.TimeStamp),
-			IntToHex(int64(targetBits)),
-			IntToHex(int64(nonce)),
+			pow.Block.HashMerkleRoot(),
+			common.IntToHex(pow.Block.TimeStamp),
+			common.IntToHex(int64(targetBits)),
+			common.IntToHex(int64(nonce)),
 		},
 		[]byte{},
 	)
