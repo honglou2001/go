@@ -9,16 +9,16 @@ type Block struct {
 								   必须严格大于前11个区块时间的中值，
 								   同时全节点也会拒绝那些超出自己2个小时时间戳的区块
 								   时间戳表示的是自1970年1月1日0时0分0秒以来的秒数*/
-	DifficultyTarget  uint        /*该区块工作量证明算法的难度目标，已经使用特定算法编码*/
-	Nonce  int                   /*为了找到满足难度目标所设定的随机数，
+	DifficultyTarget  int64        /*该区块工作量证明算法的难度目标，已经使用特定算法编码*/
+	Nonce  int64                   /*为了找到满足难度目标所设定的随机数，
 								   为了解决32位随机数在算力飞升的情况下不够用的问题，
 								   规定时间戳和coinbase交易信息均可更改，以此扩展nonce的位数*/
 	Height  int
 }
 
-func NewBlock(version int,hashPrevBlock uint,
-	hashMerkleRoot uint,timeStamp uint,
-	difficultyTarget uint,Nonce uint) (block *Block) {
+func NewBlock(version int,hashPrevBlock []byte,
+	hashMerkleRoot []byte,timeStamp int64,
+	difficultyTarget int64,Nonce int64) (block *Block) {
 	block = &Block{}
 	block.Version = version
 	block.HashPrevBlock = hashPrevBlock

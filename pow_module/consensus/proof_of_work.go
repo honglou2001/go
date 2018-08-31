@@ -26,7 +26,7 @@ func NewProofOfWork(b *block.Block) *ProofOfWork {
 	return pow
 }
 
-func (pow *ProofOfWork) PrepareData(nonce int) []byte {
+func (pow *ProofOfWork) PrepareData(nonce int64) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.block.HashPrevBlock,
@@ -41,10 +41,10 @@ func (pow *ProofOfWork) PrepareData(nonce int) []byte {
 }
 
 // 执行工作量计算
-func (pow *ProofOfWork) Run() (int, []byte) {
+func (pow *ProofOfWork) Run() (int64, []byte) {
 	var hashInt big.Int
 	var hash [32]byte
-	nonce := 0
+	nonce := int64(1)
 
 	fmt.Printf("Mining a new block")
 	for nonce < maxNonce {
@@ -74,8 +74,6 @@ func (pow *ProofOfWork) Validate() bool {
 	data := pow.PrepareData(pow.block.Nonce)
 	hash := sha256.Sum256(data)
 	hashInt.SetBytes(hash[:])
-
 	isValid := hashInt.Cmp(pow.target) == -1
-
 	return isValid
 }
