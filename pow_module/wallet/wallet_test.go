@@ -9,16 +9,29 @@ import (
 	"testing"
 )
 
-func TestGeneratePublicKey(t *testing.T) {
-	wallet := Wallet{}
-	wallet.GeneratePublicKey()
-
-	if  len(wallet.PublicKey) == 0 {
+func TestGenerateKey(t *testing.T) {
+	private, public := GenerateKey()
+	if (private.X == nil || len(public) == 0) {
 		t.Error("Generating PublicKey is error")
 	}
 }
 
-func TestEncode(t *testing.T){
+func TestNewWallet(t *testing.T) {
+	wallet := NewWallet()
+	if len(wallet.PublicKey) == 0 {
+		t.Error("NewWallet is error")
+	}
+}
+
+func TestCreateAddress(t *testing.T){
+	wallet := NewWallet()
+	bytesAddress := wallet.GetAddress()
+	if len(bytesAddress) != 36 {
+		t.Error("TestCreateAddress is error")
+	}
+}
+
+func TestEncode(t *testing.T) {
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	publicKey := &privateKey.PublicKey
 
@@ -37,12 +50,18 @@ func TestEncode(t *testing.T){
 	}
 }
 
-func TestSha256(t *testing.T){
+func TestCheckSum(t *testing.T)  {
+	bytes := []byte{1,2,3}
+	bytesHash := CheckSum(bytes)
+	if len(bytesHash) != addressChecksumLen {
+		t.Error("TestHashPubKey is error")
+	}
+}
+
+func TestSha256(t *testing.T) {
 	Sha256()
 }
 
-func TestRipemd160(t *testing.T){
+func TestRipemd160(t *testing.T) {
 	Ripemd160()
 }
-
-

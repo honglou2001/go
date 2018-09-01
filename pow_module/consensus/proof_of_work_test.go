@@ -28,11 +28,9 @@ func TestProofOfWork_PrepareData(t *testing.T) {
 func TestProofOfWork_Run(t *testing.T) {
 	proofOfWork := MockProofOfWork()
 	nonce, hash := proofOfWork.Run()
-
-	fmt.Print("fff")
-	fmt.Print(nonce)
-	fmt.Print(hash)
-	//if len(nonce) !=30 and len(hash) !=30 {
-	//	t.Error("TestPrepareData is error")
-	//}
+	fmt.Println(nonce)
+	fmt.Println(hash)
+	if (nonce !=2 && len(hash) <= 30) {
+		t.Error("TestProofOfWork_Run is error")
+	}
 }

@@ -1,9 +1,9 @@
 package transactions
 
 type Input struct {
-	PreTxHash  int32  			//前置交易hash
-	PreTxIndex  int   			//前置交易的索引
-	UnlockScriptLength int  	//解锁脚本长度
-	UnlockScrip  int    		//解锁脚本
-	Sequence int     			//序列
+	TxHash  []byte  			// Tx交易的Hash值，固定为32字节
+	PreviousOutTxIndex  int   	//前置交易的索引
+	Signature 	 []byte   //私钥签名
+	PublicKey    []byte   //公钥数据
+	Sequence uint32    //序列号，UINT32, 固定4字节,默认都设成0xFFFFFFFF
 }

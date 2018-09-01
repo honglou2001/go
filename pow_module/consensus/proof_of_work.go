@@ -10,7 +10,7 @@ import (
 	"yqx_go/pow_module/common"
 )
 
-const targetBits = 0x12        //目标难度，此值根据网络调整
+const targetBits = 0x1        //目标难度，此值根据网络调整
 const maxNonce = math.MaxInt64 //最大随机数
 
 type ProofOfWork struct {
