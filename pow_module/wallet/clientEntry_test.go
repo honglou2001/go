@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 )
-func TestCreateWallet(t *testing.T){
-	CreateWallet()
+func TestClientCreateWallet(t *testing.T){
+	ClientCreateWallet()
 	fmt.Printf("test createwallet from client side: %s\n", nodeID)
 }

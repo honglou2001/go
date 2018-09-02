@@ -4,7 +4,7 @@ import "fmt"
 
 const nodeID  = "young180901"
 
-func CreateWallet() {
+func ClientCreateWallet() {
 	wallets, _ := NewWallets(nodeID)
 	address := wallets.CreateWallet()
 	wallets.SaveToFile()

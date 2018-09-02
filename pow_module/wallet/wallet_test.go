@@ -23,13 +23,20 @@ func TestNewWallet(t *testing.T) {
 	}
 }
 
-func TestCreateAddress(t *testing.T){
+func TestWallet_GetAddress(t *testing.T){
 	wallet := NewWallet()
 	bytesAddress := wallet.GetAddress()
 	if len(bytesAddress) != 36 {
 		t.Error("TestCreateAddress is error")
 	}
 }
+func TestWallet_ValidateAddress(t *testing.T){
+	isvalid := ValidateAddress("1241DqYKddenzFeaxGjNabHg6BsPVLoDBPJP")
+	if isvalid ==false {
+		t.Error("TestWallet_ValidateAddress is error")
+	}
+}
+
 
 func TestEncode(t *testing.T) {
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
