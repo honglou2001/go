@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-	block "yqx_go/pow_module/blockchain"
+	"yqx_go/pow_module/blockchain"
 	"yqx_go/pow_module/common"
 )
 
@@ -14,12 +14,12 @@ const targetBits = 0x1        //目标难度，此值根据网络调整
 const maxNonce = math.MaxInt64 //最大随机数
 
 type ProofOfWork struct {
-	block  *block.Block //需要计算的Block
+	block  *blockchain.Block //需要计算的Block
 	target *big.Int
 }
 
 /*新建一个工作量证明任务*/
-func NewProofOfWork(b *block.Block) *ProofOfWork {
+func NewProofOfWork(b *blockchain.Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 	pow := &ProofOfWork{b, target}
@@ -29,9 +29,9 @@ func NewProofOfWork(b *block.Block) *ProofOfWork {
 func (pow *ProofOfWork) PrepareData(nonce int64) []byte {
 	data := bytes.Join(
 		[][]byte{
-			pow.block.HashPrevBlock,
-			pow.block.HashMerkleRoot,
-			common.IntToHex(pow.block.TimeStamp),
+			pow.block.PrevBlockHash,
+			pow.block.Hash,
+			common.IntToHex(pow.block.Timestamp),
 			common.IntToHex(int64(targetBits)),
 			common.IntToHex(int64(nonce)),
 		},
