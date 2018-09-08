@@ -4,13 +4,20 @@ import "testing"
 
 func TestGetInstance(t *testing.T) {
 	blockchain := GetInstance()
-	newBlock := NewBlock(1, []byte{1}, []byte{1}, 0, 0, 0)
+	newBlock := NewBlock(nil, []byte{1}, 1)
 	blockchain.AddBlock(newBlock)
 
-	newBlock2 := NewBlock(2, []byte{2}, []byte{3}, 2, 0, 2)
+	newBlock2 := NewBlock(nil, []byte{1}, 2)
 	blockchain.AddBlock(newBlock2)
 	len := len(blockchain.ReadBlock())
 	if len != 2 {
 		t.Error("adding block is error")
+	}
+}
+
+func TestCreateBlockchain(t *testing.T) {
+	blockChain := CreateBlockchain("2017,07,07", "localhost")
+	if blockChain.tip == nil {
+		t.Error("CreateBlockchain is error")
 	}
 }

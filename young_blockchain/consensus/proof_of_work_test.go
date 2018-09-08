@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"testing"
 )
-import block "yqx_go/pow_module/blockchain"
+import BlModule "yqx_go/young_blockchain/blockchain"
 
 func MockProofOfWork() (*ProofOfWork){
-	block := block.Block{}
-	block.HashPrevBlock =[]byte{1, 2, 3}
-	block.HashMerkleRoot=[]byte{2, 3, 4}
-	block.TimeStamp = 1000;
-	block.Version=1
+	block := BlModule.Block{}
+	block.PrevBlockHash=[]byte{1, 2, 3}
+	block.Hash=[]byte{2, 3, 4}
+	block.Timestamp = 1000;
 	block.Nonce = 1
 	proofOfWork := NewProofOfWork(&block)
 	return proofOfWork

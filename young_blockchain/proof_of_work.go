@@ -1,4 +1,4 @@
-package pow_module
+package young_blockchain
 
 import (
 	"math/big"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math"
 	"crypto/sha256"
-	common "yqx_go/pow_module/common"
+	common "yqx_go/young_blockchain/common"
 )
 
 const targetBits = 24

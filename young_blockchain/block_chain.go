@@ -1,9 +1,9 @@
-package pow_module
+package young_blockchain
 
 import (
 	"time"
 	log "github.com/sirupsen/logrus"
-	"yqx_go/pow_module/transactions"
+	"yqx_go/young_blockchain/transactions"
 )
 
 func init()  {

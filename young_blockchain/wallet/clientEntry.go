@@ -1,11 +1,13 @@
 package wallet
 
-import "fmt"
+import (
+	"fmt"
+	"yqx_go/young_blockchain/common"
+)
 
-const nodeID  = "young180901"
 
 func ClientCreateWallet() {
-	wallets, _ := NewWallets(nodeID)
+	wallets, _ := NewWallets(common.NodeID)
 	address := wallets.CreateWallet()
 	wallets.SaveToFile()
 	fmt.Printf("Your new address: %s\n", address)

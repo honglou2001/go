@@ -17,13 +17,28 @@ func main() {
 		if err != nil {
 			return err
 		}
-		return b.Put([]byte("2015-01-02"), []byte("My New Year post Young"))
+
+		errUpdate := b.Put([]byte("2015-01-02"), []byte("My New Year post Young 2"))
+		b.Put([]byte("2015-01-03"), []byte("My New Year post Young 3"))
+		b.Put([]byte("2015-01-04"), []byte("My New Year post Young 4"))
+		return errUpdate
 	})
 
-	db.View(func(tx *bolt.Tx) error {
+/*	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("posts"))
 		v := b.Get([]byte("2015-01-02"))
 		fmt.Printf("%sn", v)
+		return nil
+	})*/
+
+	db.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		b := tx.Bucket([]byte("posts"))
+
+		b.ForEach(func(k, v []byte) error {
+			fmt.Printf("key=%s, value=%s\n", k, v)
+			return nil
+		})
 		return nil
 	})
 

@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"log"
-	"time"
-	TxModule "yqx_go/pow_module/transactions"
-	"yqx_go/pow_module/consensus"
+	TxModule "yqx_go/young_blockchain/transactions"
 )
 
 type Block111 struct {
@@ -26,6 +24,19 @@ type Block111 struct {
 	Transactions []*TxModule.Transaction
 }
 
+/*func NewBlock(version int,hashPrevBlock []byte,
+	hashMerkleRoot []byte,timeStamp int64,
+	difficultyTarget int64,Nonce int64) (block *Block) {
+	block = &Block{}
+	block.Version = version
+	block.PrevBlockHash = hashPrevBlock
+	block.MerkleRootHash = hashMerkleRoot
+	block.TimeStamp = timeStamp
+	block.DifficultyTarget = difficultyTarget
+	block.Nonce = Nonce
+	return
+}*/
+
 type Block struct {
 	/*该区块产生的近似时间，精确到秒的UNIX时间戳，
 	   必须严格大于前11个区块时间的中值，
@@ -44,33 +55,7 @@ type Block struct {
 	Height int
 }
 
-/*func NewBlock(version int,hashPrevBlock []byte,
-	hashMerkleRoot []byte,timeStamp int64,
-	difficultyTarget int64,Nonce int64) (block *Block) {
-	block = &Block{}
-	block.Version = version
-	block.PrevBlockHash = hashPrevBlock
-	block.MerkleRootHash = hashMerkleRoot
-	block.TimeStamp = timeStamp
-	block.DifficultyTarget = difficultyTarget
-	block.Nonce = Nonce
-	return
-}*/
 
-func NewBlock(transactions []*TxModule.Transaction, prevBlockHash []byte, height int) *Block {
-	block := &Block{time.Now().Unix(), transactions, prevBlockHash, []byte{}, 0, height}
-	pow := consensus.NewProofOfWork(block)
-	nonce, hash := pow.Run()
-
-	block.Hash = hash[:]
-	block.Nonce = nonce
-
-	return block
-}
-//生成创世区块
-func NewGenesisBlock(coinbase *TxModule.Transaction) *Block {
-	return NewBlock([]*TxModule.Transaction{coinbase}, []byte{}, 0)
-}
 
 //获取merkle数根hash值
 func (b *Block) HashTransactions() []byte {
@@ -83,7 +68,6 @@ func (b *Block) HashTransactions() []byte {
 
 	return mTree.RootNode.Data
 }
-
 
 // Serialize serializes the block
 func (b *Block) Serialize() []byte {

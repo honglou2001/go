@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"golang.org/x/crypto/ripemd160"
-	"yqx_go/pow_module/crypto"
+	"yqx_go/young_blockchain/crypto"
 )
 const version = byte(0x00)
 const  addressChecksumLen  = 5

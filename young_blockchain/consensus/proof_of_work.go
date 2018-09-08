@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-	"yqx_go/pow_module/blockchain"
-	"yqx_go/pow_module/common"
+	"yqx_go/young_blockchain/blockchain"
+	"yqx_go/young_blockchain/common"
 )
 
 const targetBits = 0x1        //目标难度，此值根据网络调整

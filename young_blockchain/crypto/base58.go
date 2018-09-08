@@ -3,7 +3,7 @@ package crypto
 import (
 	"bytes"
 	"math/big"
-	"yqx_go/pow_module/common"
+	"yqx_go/young_blockchain/common"
 )
 
 var b58Alphabet = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
