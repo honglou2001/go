@@ -1,5 +1,6 @@
 package transactions
 
+//Output 交易的输出
 type Output struct {
 	Value int   				//输出金额,单位是1聪
 	PubKeyHash []byte			//锁定脚本

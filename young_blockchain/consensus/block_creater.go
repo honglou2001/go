@@ -63,9 +63,10 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 
 	return &bc
 }
-
+// NewBlock 新产生一个区块，需要经过共识
 func NewBlock(transactions []*TxModule.Transaction, prevBlockHash []byte, height int) *BlModule.Block {
-	block := &BlModule.Block{time.Now().Unix(), transactions, prevBlockHash, []byte{}, 0, height}
+	block := &BlModule.Block{time.Now().Unix(), transactions, prevBlockHash,
+	[]byte{}, 0, height}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 
@@ -74,32 +75,30 @@ func NewBlock(transactions []*TxModule.Transaction, prevBlockHash []byte, height
 
 	return block
 }
-//生成创世区块
+//NewGenesisBlock 生成创世区块
 func NewGenesisBlock(coinbase *TxModule.Transaction) *BlModule.Block {
 	return NewBlock([]*TxModule.Transaction{coinbase}, []byte{}, 0)
 }
 
-//区块链数据库是否存在
+//dbExists 区块链数据库是否存在
 func dbExists(dbFile string) bool {
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
-
+//DeleteBlockDBFile 删除区块链数据库文件，用于测试用
 func DeleteBlockDBFile(nodeID string) bool{
 	dbFile := fmt.Sprintf(dbFile, nodeID)
-	err_remove := os.Remove(dbFile)
-	if err_remove != nil {
+	errRemove := os.Remove(dbFile)
+	if errRemove != nil {
 		//如果删除失败则输出 file remove Error!
 		fmt.Println("file remove Error!")
 		//输出错误详细信息
-		fmt.Printf("%s", err_remove)
-
+		fmt.Printf("%s", errRemove)
 		return false
-	} else {
-		//如果删除成功则输出 file remove OK!
-		fmt.Print("file remove OK!")
-		return true
 	}
+	//如果删除成功则输出 file remove OK!
+	fmt.Print("file remove OK!")
+	return true
 }

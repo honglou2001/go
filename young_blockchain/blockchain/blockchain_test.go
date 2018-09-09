@@ -1,8 +1,6 @@
 package blockchain
 
-import "testing"
-
-func TestGetInstance(t *testing.T) {
+/*func TestGetInstance(t *testing.T) {
 	blockchain := GetInstance()
 	newBlock := NewBlock(nil, []byte{1}, 1)
 	blockchain.AddBlock(newBlock)
@@ -20,4 +18,4 @@ func TestCreateBlockchain(t *testing.T) {
 	if blockChain.tip == nil {
 		t.Error("CreateBlockchain is error")
 	}
-}
+}*/

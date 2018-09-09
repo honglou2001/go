@@ -19,7 +19,7 @@ func (out *Output) Lock(address []byte) {
 	out.PubKeyHash = pubKeyHash
 }
 
-
+//Transaction 一个交易
 type Transaction struct {
 	ID   []byte  		//交易参照的规则协议版本号
 	TxInput   []Input   		//一个或多个输入交易构成的数组
@@ -61,7 +61,7 @@ func (tx *Transaction) Hash() []byte {
 }
 
 
-//返回交易的序列化
+//Serialize 返回交易的序列化
 func (tx Transaction) Serialize() []byte {
 	var encoded bytes.Buffer
 

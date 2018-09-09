@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-/*Hash public key*/
+//HashPubKey Hash public key
 func HashPubKey(pubKey []byte) []byte {
 	publicSHA256 := sha256.Sum256(pubKey)
 	RIPEMD160Hasher := ripemd160.New()

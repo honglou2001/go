@@ -7,12 +7,12 @@ import (
 
 func TestReadBlockChain(t *testing.T) {
 	address := "2017.07.07"
-	nodeId := "test"
-	blockChain_Create := CreateBlockchain(address, nodeId)
-	blockChain_Read := ReadBlockChain(nodeId)
-	fmt.Println(blockChain_Read)
-	delete_success := DeleteBlockDBFile(nodeId)
-	if (blockChain_Create == nil || len(blockChain_Create.Tip) != 32 || len(blockChain_Read) != 2 || delete_success == false) {
+	nodeID := "test"
+	blockChainCreate := CreateBlockchain(address, nodeID)
+	blockChainRead := ReadBlockChain(nodeID)
+	fmt.Println(blockChainRead)
+	deleteSuccess := DeleteBlockDBFile(nodeID)
+	if (blockChainCreate == nil || len(blockChainCreate.Tip) != 32 || len(blockChainRead) != 2 || deleteSuccess == false) {
 		t.Error("CreateBlockchain  or  DeleteBlockDBFile is error")
 	}
 }

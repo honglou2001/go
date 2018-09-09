@@ -12,12 +12,12 @@ import (
 
 const walletFile = "wallet_%s.txt"
 
-/*多个钱包*/
+//Wallets 所有钱包信息，需要持久化
 type Wallets struct {
 	Wallets map[string]*Wallet
 	nodeID string
 }
-
+//NewWallets 根据节点信息来建立一个钱包
 func NewWallets(nodeID string) (*Wallets, error) {
 	wallets := Wallets{}
 	wallets.Wallets = make(map[string]*Wallet)
@@ -26,7 +26,7 @@ func NewWallets(nodeID string) (*Wallets, error) {
 	return &wallets, err
 }
 
-/*create a unique wallet and assign to wallets map*/
+//CreateWallet a unique wallet and assign to wallets map
 func (ws *Wallets) CreateWallet() string {
 	wallet := NewWallet()
 	address := fmt.Sprintf("%s", wallet.GetAddress())
@@ -34,7 +34,7 @@ func (ws *Wallets) CreateWallet() string {
 	return address
 }
 
-/*加载当前节点的所有钱包*/
+//LoadFromFile 加载当前节点的所有钱包
 func (ws *Wallets) LoadFromFile(nodeID string) error {
 	walletFile := fmt.Sprintf(walletFile, nodeID)
 	if _, err := os.Stat(walletFile); os.IsNotExist(err) {
@@ -57,7 +57,7 @@ func (ws *Wallets) LoadFromFile(nodeID string) error {
 	return nil
 }
 
-// 保存所有钱包到一个文件
+//SaveToFile 保存所有钱包到一个文件
 func (ws *Wallets) SaveToFile() {
 	var content bytes.Buffer
 	walletFile := fmt.Sprintf(walletFile, ws.nodeID)

@@ -12,20 +12,20 @@ import (
 
 const targetBits = 0x1        //目标难度，此值根据网络调整
 const maxNonce = math.MaxInt64 //最大随机数
-
+//ProofOfWork 共识类，共识的属性及需要的算法
 type ProofOfWork struct {
 	block  *blockchain.Block //需要计算的Block
 	target *big.Int
 }
 
-/*新建一个工作量证明任务*/
+//NewProofOfWork 新建一个工作量证明任务
 func NewProofOfWork(b *blockchain.Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 	pow := &ProofOfWork{b, target}
 	return pow
 }
-
+//PrepareData 进行共识计算前的准备数据
 func (pow *ProofOfWork) PrepareData(nonce int64) []byte {
 	data := bytes.Join(
 		[][]byte{
@@ -40,7 +40,7 @@ func (pow *ProofOfWork) PrepareData(nonce int64) []byte {
 	return data
 }
 
-// 执行工作量计算
+//Run 执行工作量计算
 func (pow *ProofOfWork) Run() (int64, []byte) {
 	var hashInt big.Int
 	var hash [32]byte
@@ -67,7 +67,7 @@ func (pow *ProofOfWork) Run() (int64, []byte) {
 	return nonce, hash[:]
 }
 
-// 校验一个block的工作量计算是否有效
+//Validate 校验一个block的工作量计算是否有效
 func (pow *ProofOfWork) Validate() bool {
 	var hashInt big.Int
 

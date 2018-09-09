@@ -8,7 +8,7 @@ package transactions
 	Sequence uint32    //序列号，UINT32, 固定4字节,默认都设成0xFFFFFFFF
 }*/
 
-// TXInput represents a transaction input
+//Input represents a transaction input
 type Input struct {
 	Txid      []byte
 	Vout      int
