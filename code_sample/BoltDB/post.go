@@ -10,7 +10,6 @@ type Post struct {
 	Content string
 }
 
-
 /*post := &Post{
 Created: time.Now(),
 Title:   "My first post",

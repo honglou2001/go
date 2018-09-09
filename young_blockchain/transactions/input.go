@@ -14,5 +14,5 @@ type Input struct {
 	Vout      int
 	Signature []byte
 	PubKey    []byte
-	Sequence uint32    //序列号，UINT32, 固定4字节,默认都设成0xFFFFFFFF
+	Sequence  uint32 //序列号，UINT32, 固定4字节,默认都设成0xFFFFFFFF
 }

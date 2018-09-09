@@ -15,8 +15,9 @@ const walletFile = "wallet_%s.txt"
 //Wallets 所有钱包信息，需要持久化
 type Wallets struct {
 	Wallets map[string]*Wallet
-	nodeID string
+	nodeID  string
 }
+
 //NewWallets 根据节点信息来建立一个钱包
 func NewWallets(nodeID string) (*Wallets, error) {
 	wallets := Wallets{}

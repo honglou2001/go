@@ -10,7 +10,7 @@ import (
 	"yqx_go/young_blockchain/common"
 )
 
-const targetBits = 0x1        //目标难度，此值根据网络调整
+const targetBits = 0x1         //目标难度，此值根据网络调整
 const maxNonce = math.MaxInt64 //最大随机数
 //ProofOfWork 共识类，共识的属性及需要的算法
 type ProofOfWork struct {
@@ -25,6 +25,7 @@ func NewProofOfWork(b *blockchain.Block) *ProofOfWork {
 	pow := &ProofOfWork{b, target}
 	return pow
 }
+
 //PrepareData 进行共识计算前的准备数据
 func (pow *ProofOfWork) PrepareData(nonce int64) []byte {
 	data := bytes.Join(

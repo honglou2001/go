@@ -57,16 +57,17 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 		log.Panic(err)
 	}
 
-	bc := BlModule.BlockChain{tip, db}
+	bc := BlModule.BlockChain{Tip:tip, Db:db}
 
 	defer db.Close()
 
 	return &bc
 }
+
 // NewBlock 新产生一个区块，需要经过共识
 func NewBlock(transactions []*TxModule.Transaction, prevBlockHash []byte, height int) *BlModule.Block {
-	block := &BlModule.Block{time.Now().Unix(), transactions, prevBlockHash,
-	[]byte{}, 0, height}
+	block := &BlModule.Block{Timestamp: time.Now().Unix(), Transactions: transactions, PrevBlockHash: prevBlockHash,
+	Hash: []byte{}, Height: height}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 
@@ -75,6 +76,7 @@ func NewBlock(transactions []*TxModule.Transaction, prevBlockHash []byte, height
 
 	return block
 }
+
 //NewGenesisBlock 生成创世区块
 func NewGenesisBlock(coinbase *TxModule.Transaction) *BlModule.Block {
 	return NewBlock([]*TxModule.Transaction{coinbase}, []byte{}, 0)
@@ -87,8 +89,9 @@ func dbExists(dbFile string) bool {
 	}
 	return true
 }
+
 //DeleteBlockDBFile 删除区块链数据库文件，用于测试用
-func DeleteBlockDBFile(nodeID string) bool{
+func DeleteBlockDBFile(nodeID string) bool {
 	dbFile := fmt.Sprintf(dbFile, nodeID)
 	errRemove := os.Remove(dbFile)
 	if errRemove != nil {

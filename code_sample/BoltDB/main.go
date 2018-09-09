@@ -24,7 +24,7 @@ func main() {
 		return errUpdate
 	})
 
-/*	db.View(func(tx *bolt.Tx) error {
+	/*	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("posts"))
 		v := b.Get([]byte("2015-01-02"))
 		fmt.Printf("%sn", v)
@@ -41,7 +41,6 @@ func main() {
 		})
 		return nil
 	})
-
 
 	defer db.Close()
 

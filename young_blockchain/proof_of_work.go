@@ -1,11 +1,11 @@
 package young_blockchain
 
 import (
-	"math/big"
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"math"
-	"crypto/sha256"
+	"math/big"
 	common "yqx_go/young_blockchain/common"
 )
 
@@ -16,11 +16,11 @@ var (
 )
 
 type ProofOfWork struct {
-	Block *Block
+	Block  *Block
 	Target *big.Int
 }
 
-func NewProofOfWork(b *Block) *ProofOfWork  {
+func NewProofOfWork(b *Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
@@ -28,7 +28,7 @@ func NewProofOfWork(b *Block) *ProofOfWork  {
 	return pow
 }
 
-func (pow *ProofOfWork) prepareData(nonce int) []byte  {
+func (pow *ProofOfWork) prepareData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.Block.PrevBlockHash,
@@ -49,7 +49,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	nonce := 0
 
 	fmt.Printf("Minning the block containning %s\n", pow.Block.Data)
-	for nonce < maxNonce{
+	for nonce < maxNonce {
 		data := pow.prepareData(nonce)
 		hash = sha256.Sum256(data)
 
@@ -59,8 +59,8 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 		if hashInt.Cmp(pow.Target) == -1 {
 			break
-		}else {
-			nonce ++
+		} else {
+			nonce++
 		}
 	}
 
@@ -68,7 +68,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	return nonce, hash[:]
 }
 
-func (pow *ProofOfWork) Validate()bool  {
+func (pow *ProofOfWork) Validate() bool {
 	var hashInt big.Int
 
 	data := pow.prepareData(pow.Block.Nonce)
@@ -76,7 +76,7 @@ func (pow *ProofOfWork) Validate()bool  {
 
 	hashInt.SetBytes(hash[:])
 
-	isValid := hashInt.Cmp(pow.Target) == - 1
+	isValid := hashInt.Cmp(pow.Target) == -1
 
 	return isValid
 }

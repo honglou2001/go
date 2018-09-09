@@ -8,7 +8,7 @@ import (
 func TestCreateWallet(t *testing.T) {
 	wallets, err := NewWallets("12")
 	address := wallets.CreateWallet() //1241DqYKddenzFeaxGjNabHg6BsPVLoDBPJP
-	if len(address)!=36 {
+	if len(address) != 36 {
 		t.Error("TestCreateWallet is error")
 	}
 	if err != nil {

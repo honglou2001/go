@@ -84,7 +84,7 @@ func handleConn(conn net.Conn) {
 				continue
 			}
 			newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], bpm)
-				if err != nil {
+			if err != nil {
 				log.Println(err)
 				continue
 			}

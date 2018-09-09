@@ -13,27 +13,32 @@ import (
 	"golang.org/x/crypto/ripemd160"
 	"yqx_go/young_blockchain/crypto"
 )
+
 const version = byte(0x00)
-const  addressChecksumLen  = 5
+const addressChecksumLen = 5
+
 //Wallet 钱包信息
 type Wallet struct {
 	PrivateKey ecdsa.PrivateKey
 	PublicKey  []byte
 }
+
 //NewWallet 新建一个钱包
 func NewWallet() *Wallet {
 	private, public := GenerateKey()
 	wallet := Wallet{private, public}
 	return &wallet
 }
+
 var (
 	runMode  string
 	randKey  string
 	randSign string
 	prk      *ecdsa.PrivateKey
 	puk      ecdsa.PublicKey
-	curve   elliptic.Curve
+	curve    elliptic.Curve
 )
+
 //GenerateKey 生成钱包钥匙对
 func GenerateKey() (ecdsa.PrivateKey, []byte) {
 	curve := elliptic.P256()
@@ -58,6 +63,7 @@ func (w *Wallet) GetAddress() []byte {
 
 	return address
 }
+
 //ValidateAddress 检验一个钱包地址是否有效
 func ValidateAddress(address string) bool {
 	pubKeyHash := crypto.Base58Decode([]byte(address))
@@ -75,6 +81,7 @@ func CheckSum(payload []byte) []byte {
 	secondSHA := sha256.Sum256(firstSHA[:])
 	return secondSHA[:addressChecksumLen]
 }
+
 //Encode 返回钱包钥匙的字符串形式，方便查看
 func Encode(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey) (string, string) {
 	x509Encoded, _ := x509.MarshalECPrivateKey(privateKey)
@@ -85,6 +92,7 @@ func Encode(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey) (string, s
 
 	return string(pemEncoded), string(pemEncodedPub)
 }
+
 //Decode 与Encode对应
 func Decode(pemEncoded string, pemEncodedPub string) (*ecdsa.PrivateKey, *ecdsa.PublicKey) {
 	block, _ := pem.Decode([]byte(pemEncoded))
@@ -97,14 +105,16 @@ func Decode(pemEncoded string, pemEncodedPub string) (*ecdsa.PrivateKey, *ecdsa.
 	publicKey := genericPublicKey.(*ecdsa.PublicKey)
 	return privateKey, publicKey
 }
+
 //Sha256 测试Sha256函数
-func Sha256(){
+func Sha256() {
 	s := "sha256 芳华"
 	h := sha256.New()
 	h.Write([]byte(s))
 	bs := h.Sum(nil)
 	fmt.Printf("origin: %s, sha256 hash: %x\n", s, bs)
 }
+
 //Ripemd160 测试Ripemd160
 func Ripemd160() {
 	hasher := ripemd160.New()

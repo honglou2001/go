@@ -9,6 +9,7 @@ import (
 	"os"
 	BlModule "yqx_go/young_blockchain/blockchain"
 )
+
 //ReadBlockChain 读区块链信息
 func ReadBlockChain(nodeID string) []string {
 	dbFile := fmt.Sprintf(dbFile, nodeID)
@@ -20,7 +21,7 @@ func ReadBlockChain(nodeID string) []string {
 	if err != nil {
 		log.Panic(err)
 	}
-	var data []string;
+	var data []string
 	db.View(func(tx *bolt.Tx) error {
 		var vData string
 		// Assume bucket exists and has keys

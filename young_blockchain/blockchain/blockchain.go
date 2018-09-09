@@ -34,10 +34,12 @@ func (blockchain *BlockChain) AddBlock(newBlock *Block) {
 	val := append(chains, *newBlock)
 	ReplaceChain(val)
 }
+
 //ReadBlock 读取一个区块
 func (blockchain *BlockChain) ReadBlock() []Block {
 	return chains
 }
+
 //ReplaceChain 取最长的区块链
 func ReplaceChain(newBlocks []Block) {
 	mutex.Lock()

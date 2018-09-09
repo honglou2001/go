@@ -1,25 +1,25 @@
 package young_blockchain
 
 import (
-	"time"
 	log "github.com/sirupsen/logrus"
+	"time"
 	"yqx_go/young_blockchain/transactions"
 )
 
-func init()  {
+func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 }
 
 // Block represents a block in the blockchain
 type Block struct {
-	TimeStamp int64
-	Transactions []*transactions.Transaction
+	TimeStamp     int64
+	Transactions  []*transactions.Transaction
 	PrevBlockHash []byte
-	Hash []byte
-	Nonce int
+	Hash          []byte
+	Nonce         int
 }
 
-func NewBlock(transactions []*transactions.Transaction, prewBlockHash []byte) *Block  {
+func NewBlock(transactions []*transactions.Transaction, prewBlockHash []byte) *Block {
 	block := &Block{time.Now().Unix(), transactions,
 		prewBlockHash, []byte{}, 0}
 

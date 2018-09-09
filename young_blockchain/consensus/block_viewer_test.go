@@ -12,7 +12,7 @@ func TestReadBlockChain(t *testing.T) {
 	blockChainRead := ReadBlockChain(nodeID)
 	fmt.Println(blockChainRead)
 	deleteSuccess := DeleteBlockDBFile(nodeID)
-	if (blockChainCreate == nil || len(blockChainCreate.Tip) != 32 || len(blockChainRead) != 2 || deleteSuccess == false) {
+	if blockChainCreate == nil || len(blockChainCreate.Tip) != 32 || len(blockChainRead) != 2 || deleteSuccess == false {
 		t.Error("CreateBlockchain  or  DeleteBlockDBFile is error")
 	}
 }

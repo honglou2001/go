@@ -6,6 +6,7 @@ import (
 	"log"
 	TxModule "yqx_go/young_blockchain/transactions"
 )
+
 //Block 备份
 //type Block111 struct {
 //	Version int /*区块版本号，表示本区块遵守的验证规则
@@ -38,9 +39,9 @@ import (
 //Block 一个区块
 type Block struct {
 	/*该区块产生的近似时间，精确到秒的UNIX时间戳，
-	   必须严格大于前11个区块时间的中值，
-	   同时全节点也会拒绝那些超出自己2个小时时间戳的区块
-	   时间戳表示的是自1970年1月1日0时0分0秒以来的秒数*/
+	  必须严格大于前11个区块时间的中值，
+	  同时全节点也会拒绝那些超出自己2个小时时间戳的区块
+	  时间戳表示的是自1970年1月1日0时0分0秒以来的秒数*/
 	Timestamp    int64
 	Transactions []*TxModule.Transaction
 	/*前一区块的哈希值，使用SHA256(SHA256(父区块头))计算*/
@@ -48,13 +49,11 @@ type Block struct {
 	Hash          []byte
 
 	/*为了找到满足难度目标所设定的随机数，
-	  为了解决32位随机数在算力飞升的情况下不够用的问题，
-      规定时间戳和coinbase交易信息均可更改，以此扩展nonce的位数*/
+		  为了解决32位随机数在算力飞升的情况下不够用的问题，
+	      规定时间戳和coinbase交易信息均可更改，以此扩展nonce的位数*/
 	Nonce  int64
 	Height int
 }
-
-
 
 //HashTransactions 获取merkle数根hash值
 func (b *Block) HashTransactions() []byte {

@@ -19,11 +19,7 @@ func TestGetInstance(t *testing.T) {
 func TestCreateBlockchain(t *testing.T) {
 	blockChain := CreateBlockchain("2017.07.07", "test")
 	result := DeleteBlockDBFile("test")
-	if (blockChain == nil || len(blockChain.Tip)!=32 || result==false){
+	if blockChain == nil || len(blockChain.Tip) != 32 || result == false {
 		t.Error("CreateBlockchain  or  DeleteBlockDBFile is error")
 	}
 }
-
-
-
-

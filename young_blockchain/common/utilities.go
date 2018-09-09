@@ -23,4 +23,3 @@ func ReverseBytes(data []byte) {
 		data[i], data[j] = data[j], data[i]
 	}
 }
-
