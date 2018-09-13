@@ -2,9 +2,11 @@ package transactions
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"yqx_go/young_blockchain/crypto"
@@ -46,6 +48,10 @@ func NewCoinbaseTX(to, data string) *Transaction {
 
 	return &tx
 }
+// IsCoinbase checks whether the transaction is coinbase
+func (tx Transaction) IsCoinbase() bool {
+	return len(tx.TxInput) == 1 && len(tx.TxInput[0].Txid) == 0 && tx.TxInput[0].Vout == -1
+}
 
 // Hash returns the hash of the Transaction
 func (tx *Transaction) Hash() []byte {
@@ -57,6 +63,58 @@ func (tx *Transaction) Hash() []byte {
 	hash = sha256.Sum256(txCopy.Serialize())
 
 	return hash[:]
+}
+
+// Sign signs each input of a Transaction
+func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transaction) {
+	if tx.IsCoinbase() {
+		return
+	}
+
+	for _, vin := range tx.TxInput {
+		if prevTXs[hex.EncodeToString(vin.Txid)].ID == nil {
+			log.Panic("ERROR: Previous transaction is not correct")
+		}
+	}
+
+	txCopy := tx.TrimmedCopy()
+
+	for inID, vin := range txCopy.TxInput {
+		prevTx := prevTXs[hex.EncodeToString(vin.Txid)]
+		txCopy.TxInput[inID].Signature = nil
+		txCopy.TxInput[inID].PubKey = prevTx.TxOutput[vin.Vout].PubKeyHash
+
+		dataToSign := fmt.Sprintf("%x\n", txCopy)
+
+		r, s, err := ecdsa.Sign(rand.Reader, &privKey, []byte(dataToSign))
+		if err != nil {
+			log.Panic(err)
+		}
+		signature := append(r.Bytes(), s.Bytes()...)
+
+		tx.TxInput[inID].Signature = signature
+		txCopy.TxInput[inID].PubKey = nil
+	}
+}
+
+
+
+// TrimmedCopy creates a trimmed copy of Transaction to be used in signing
+func (tx *Transaction) TrimmedCopy() Transaction {
+	var inputs []Input
+	var outputs []Output
+
+	for _, vin := range tx.TxInput {
+		inputs = append(inputs, Input{vin.Txid, vin.Vout, nil, nil,0xFFFFFFFF})
+	}
+
+	for _, vout := range tx.TxOutput {
+		outputs = append(outputs, Output{vout.Value, vout.PubKeyHash})
+	}
+
+	txCopy := Transaction{tx.ID, inputs, outputs, 0}
+
+	return txCopy
 }
 
 //Serialize 返回交易的序列化

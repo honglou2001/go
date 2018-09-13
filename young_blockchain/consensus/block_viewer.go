@@ -8,11 +8,12 @@ import (
 	"log"
 	"os"
 	BlModule "yqx_go/young_blockchain/blockchain"
+	"yqx_go/young_blockchain/common"
 )
 
 //ReadBlockChain 读区块链信息
 func ReadBlockChain(nodeID string) []string {
-	dbFile := fmt.Sprintf(dbFile, nodeID)
+	dbFile := fmt.Sprintf(common.DbFile, nodeID)
 	if !dbExists(dbFile) {
 		fmt.Println("Blockchain not exists.")
 		os.Exit(1)
@@ -25,9 +26,9 @@ func ReadBlockChain(nodeID string) []string {
 	db.View(func(tx *bolt.Tx) error {
 		var vData string
 		// Assume bucket exists and has keys
-		b := tx.Bucket([]byte(blocksBucket))
+		b := tx.Bucket([]byte(common.BlocksBucket))
 		b.ForEach(func(k, v []byte) error {
-			if string(k) != keyForLasthash {
+			if string(k) != common.KeyForLasthash {
 				block := BlModule.DeserializeBlock(v)
 				jsonStr, err := json.Marshal(block)
 				if err != nil {

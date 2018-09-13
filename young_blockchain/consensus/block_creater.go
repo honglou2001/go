@@ -7,18 +7,13 @@ import (
 	"os"
 	"time"
 	BlModule "yqx_go/young_blockchain/blockchain"
+	"yqx_go/young_blockchain/common"
 	TxModule "yqx_go/young_blockchain/transactions"
 )
 
-/*type BlockChain struct{}*/
-const dbFile = "young_blockchain_%s.db"
-const blocksBucket = "blocks"
-const keyForLasthash = "1"
-const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
-
 // CreateBlockchain creates a new blockchain DB
 func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
-	dbFile := fmt.Sprintf(dbFile, nodeID)
+	dbFile := fmt.Sprintf(common.DbFile, nodeID)
 	if dbExists(dbFile) {
 		fmt.Println("Blockchain already exists.")
 		os.Exit(1)
@@ -26,7 +21,7 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 
 	var tip []byte
 
-	cbtx := TxModule.NewCoinbaseTX(address, genesisCoinbaseData)
+	cbtx := TxModule.NewCoinbaseTX(address, common.GenesisCoinbaseData)
 	genesis := NewGenesisBlock(cbtx)
 
 	db, err := bolt.Open(dbFile, 0600, nil)
@@ -35,7 +30,7 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 	}
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucket([]byte(blocksBucket))
+		b, err := tx.CreateBucket([]byte(common.BlocksBucket))
 		if err != nil {
 			log.Panic(err)
 		}
@@ -45,7 +40,7 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 			log.Panic(err)
 		}
 		//用特定key，保留最后的Hash
-		err = b.Put([]byte(keyForLasthash), genesis.Hash)
+		err = b.Put([]byte(common.KeyForLasthash), genesis.Hash)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -56,11 +51,8 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	bc := BlModule.BlockChain{Tip:tip, Db:db}
-
 	defer db.Close()
-
 	return &bc
 }
 
@@ -92,7 +84,7 @@ func dbExists(dbFile string) bool {
 
 //DeleteBlockDBFile 删除区块链数据库文件，用于测试用
 func DeleteBlockDBFile(nodeID string) bool {
-	dbFile := fmt.Sprintf(dbFile, nodeID)
+	dbFile := fmt.Sprintf(common.DbFile, nodeID)
 	errRemove := os.Remove(dbFile)
 	if errRemove != nil {
 		//如果删除失败则输出 file remove Error!
