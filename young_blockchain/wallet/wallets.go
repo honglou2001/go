@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -16,6 +18,11 @@ const walletFile = "wallet_%s.txt"
 type Wallets struct {
 	Wallets map[string]*Wallet
 	nodeID  string
+}
+
+// GetWallet returns a Wallet by its address
+func (ws Wallets) GetWallet(address string) Wallet {
+	return *ws.Wallets[address]
 }
 
 //NewWallets 根据节点信息来建立一个钱包
@@ -73,4 +80,13 @@ func (ws *Wallets) SaveToFile() {
 	if err != nil {
 		beego.Error("SaveToFile WriteFile fail,", err)
 	}
+}
+
+func (ws *Wallets) ToString() string {
+	jsonStr, err := json.Marshal(ws)
+	if err != nil {
+		log.Panic(err)
+	}
+	walletsText := fmt.Sprintf("wallets=\n%s\n", string(jsonStr))
+	return walletsText
 }

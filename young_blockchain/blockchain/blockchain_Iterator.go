@@ -1,6 +1,5 @@
 package blockchain
 
-
 import (
 	"log"
 
@@ -8,14 +7,14 @@ import (
 	"yqx_go/young_blockchain/common"
 )
 
-// BlockChainIterator is used to iterate over blockchain blocks
-type BlockChainIterator struct {
+// ChainIterator is used to iterate over blockchain blocks
+type ChainIterator struct {
 	currentHash []byte
 	db          *bolt.DB
 }
 
 // Next returns next block starting from the tip
-func (i *BlockChainIterator) Next() *Block {
+func (i *ChainIterator) Next() *Block {
 	var block *Block
 
 	err := i.db.View(func(tx *bolt.Tx) error {
@@ -29,8 +28,6 @@ func (i *BlockChainIterator) Next() *Block {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	i.currentHash = block.PrevBlockHash
-
 	return block
 }

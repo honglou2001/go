@@ -76,9 +76,54 @@ func (bc *BlockChain) AddBlock(block *Block) {
 		log.Panic(err)
 	}
 }
+
+// FindUTXO finds all unspent transaction outputs and returns transactions with spent outputs removed
+func (bc *BlockChain) FindUTXO() map[string]TxModule.Outputs {
+	UTXO := make(map[string]TxModule.Outputs)
+	spentTXOs := make(map[string][]int)
+	bci := bc.Iterator()
+
+	for {
+		block := bci.Next()
+
+		for _, tx := range block.Transactions {
+			txID := hex.EncodeToString(tx.ID)
+
+		Outputs:
+			for outIdx, out := range tx.TxOutput {
+				// Was the output spent?
+				if spentTXOs[txID] != nil {
+					for _, spentOutIdx := range spentTXOs[txID] {
+						if spentOutIdx == outIdx {
+							continue Outputs
+						}
+					}
+				}
+
+				outs := UTXO[txID]
+				outs.Outputs = append(outs.Outputs, out)
+				UTXO[txID] = outs
+			}
+
+			if tx.IsCoinbase() == false {
+				for _, in := range tx.TxInput {
+					inTxID := hex.EncodeToString(in.Txid)
+					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
+				}
+			}
+		}
+
+		if len(block.PrevBlockHash) == 0 {
+			break
+		}
+	}
+
+	return UTXO
+}
+
 // Iterator returns a BlockchainIterat
-func (bc *BlockChain) Iterator() *BlockChainIterator {
-	bci := &BlockChainIterator{bc.Tip, bc.Db}
+func (bc *BlockChain) Iterator() *ChainIterator {
+	bci := &ChainIterator{bc.Tip, bc.Db}
 
 	return bci
 }
@@ -116,6 +161,26 @@ func (bc *BlockChain) SignTransaction(tx *TxModule.Transaction, privKey ecdsa.Pr
 	}
 
 	tx.Sign(privKey, prevTXs)
+}
+
+
+// VerifyTransaction verifies transaction input signatures
+func (bc *BlockChain) VerifyTransaction(tx *TxModule.Transaction) bool {
+	if tx.IsCoinbase() {
+		return true
+	}
+
+	prevTXs := make(map[string]TxModule.Transaction)
+
+	for _, vin := range tx.TxInput {
+		prevTX, err := bc.FindTransaction(vin.Txid)
+		if err != nil {
+			log.Panic(err)
+		}
+		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
+	}
+
+	return tx.Verify(prevTXs)
 }
 
 //ReadBlock 读取一个区块

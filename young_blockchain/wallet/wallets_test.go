@@ -1,8 +1,10 @@
 package wallet
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"testing"
+	"yqx_go/young_blockchain/common"
 )
 
 func TestCreateWallet(t *testing.T) {
@@ -12,6 +14,14 @@ func TestCreateWallet(t *testing.T) {
 		t.Error("TestCreateWallet is error")
 	}
 	if err != nil {
-		beego.Error("TestCreateWallet fail,", err)
+		beego.Error("TestCreateWallet fail", err)
 	}
+}
+
+func TestWallets_LoadFromFile(t *testing.T) {
+	wallets := Wallets{}
+	wallets.Wallets = make(map[string]*Wallet)
+	wallets.nodeID =common.NodeID
+	wallets.LoadFromFile(wallets.nodeID )
+	fmt.Println(wallets.ToString())
 }

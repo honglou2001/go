@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"log"
 )
 
@@ -23,3 +24,11 @@ func ReverseBytes(data []byte) {
 		data[i], data[j] = data[j], data[i]
 	}
 }
+
+func ByteToHexString(data []byte) string{
+	return hex.EncodeToString(data)
+}
+
+
+
+

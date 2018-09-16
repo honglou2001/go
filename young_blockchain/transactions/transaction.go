@@ -3,12 +3,14 @@ package transactions
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
 	"log"
+	"math/big"
 	"yqx_go/young_blockchain/crypto"
 )
 
@@ -65,6 +67,51 @@ func (tx *Transaction) Hash() []byte {
 	return hash[:]
 }
 
+// Verify verifies signatures of Transaction inputs
+func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
+	if tx.IsCoinbase() {
+		return true
+	}
+
+	for _, vin := range tx.TxInput {
+		if prevTXs[hex.EncodeToString(vin.Txid)].ID == nil {
+			log.Panic("ERROR: Previous transaction is not correct")
+		}
+	}
+
+	txCopy := tx.TrimmedCopy()
+	curve := elliptic.P256()
+
+	for inID, vin := range tx.TxInput {
+		prevTx := prevTXs[hex.EncodeToString(vin.Txid)]
+		txCopy.TxInput[inID].Signature = nil
+		txCopy.TxInput[inID].PubKey = prevTx.TxOutput[vin.Vout].PubKeyHash
+
+		r := big.Int{}
+		s := big.Int{}
+		sigLen := len(vin.Signature)
+		r.SetBytes(vin.Signature[:(sigLen / 2)])
+		s.SetBytes(vin.Signature[(sigLen / 2):])
+
+		x := big.Int{}
+		y := big.Int{}
+		keyLen := len(vin.PubKey)
+		x.SetBytes(vin.PubKey[:(keyLen / 2)])
+		y.SetBytes(vin.PubKey[(keyLen / 2):])
+
+		dataToVerify := fmt.Sprintf("%x\n", txCopy)
+
+		rawPubKey := ecdsa.PublicKey{Curve: curve, X: &x, Y: &y}
+		if ecdsa.Verify(&rawPubKey, []byte(dataToVerify), &r, &s) == false {
+			return false
+		}
+		txCopy.TxInput[inID].PubKey = nil
+	}
+
+	return true
+}
+
+
 // Sign signs each input of a Transaction
 func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transaction) {
 	if tx.IsCoinbase() {
@@ -96,8 +143,6 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 		txCopy.TxInput[inID].PubKey = nil
 	}
 }
-
-
 
 // TrimmedCopy creates a trimmed copy of Transaction to be used in signing
 func (tx *Transaction) TrimmedCopy() Transaction {

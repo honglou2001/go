@@ -1,6 +1,9 @@
 package consensus
 
-import "testing"
+import (
+	"testing"
+	"yqx_go/young_blockchain/common"
+)
 import BlModule "yqx_go/young_blockchain/blockchain"
 
 func TestGetInstance(t *testing.T) {
@@ -17,6 +20,17 @@ func TestGetInstance(t *testing.T) {
 }
 
 func TestCreateBlockchain(t *testing.T) {
+	blockChain := CreateBlockchain(common.GenesisAddress, common.NodeID)
+	defer blockChain.Db.Close()
+
+	UTXOSet := UTXO{blockChain}
+	UTXOSet.Reindex()
+	if blockChain == nil || len(blockChain.Tip) != 32{
+		t.Error("CreateBlockchain  or  DeleteBlockDBFile is error")
+	}
+}
+
+func TestDeleteBlockDBFile(t *testing.T) {
 	blockChain := CreateBlockchain("2017.07.07", "test")
 	result := DeleteBlockDBFile("test")
 	if blockChain == nil || len(blockChain.Tip) != 32 || result == false {

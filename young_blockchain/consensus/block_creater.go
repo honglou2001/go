@@ -52,7 +52,35 @@ func CreateBlockchain(address, nodeID string) *BlModule.BlockChain {
 		log.Panic(err)
 	}
 	bc := BlModule.BlockChain{Tip:tip, Db:db}
-	defer db.Close()
+	return &bc
+}
+
+// NewBlockchain creates a new Blockchain with genesis Block
+func NewBlockchain(nodeID string) *BlModule.BlockChain {
+	dbFile := fmt.Sprintf(common.DbFile, nodeID)
+	if dbExists(dbFile) == false {
+		fmt.Println("No existing blockchain found. Create one first.")
+		os.Exit(1)
+	}
+
+	var tip []byte
+	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(common.BlocksBucket))
+		tip = b.Get([]byte(common.KeyForLasthash))
+
+		return nil
+	})
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bc := BlModule.BlockChain{tip, db}
+
 	return &bc
 }
 

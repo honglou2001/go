@@ -15,7 +15,7 @@ import (
 )
 
 const version = byte(0x00)
-const addressChecksumLen = 5
+const addressChecksumLen = 4
 
 //Wallet 钱包信息
 type Wallet struct {

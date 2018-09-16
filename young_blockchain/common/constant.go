@@ -4,7 +4,9 @@ package common
 const NodeID = "young180901"
 
 //GenesisAddress 创世区块的钱包地址
-const GenesisAddress = "20120707"
+const GenesisAddress = "13U8Taw6rWwkmaTu8eZN3Tj7YmTsrwTEH4"
+
+const ToAddress = "15U8Taw6rWwkmaTu8eZN3Tj7YmTsrwTEH4"
 
 /*type BlockChain struct{}*/
 const DbFile = "young_blockchain_%s.db"
