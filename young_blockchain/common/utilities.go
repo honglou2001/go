@@ -24,7 +24,7 @@ func ReverseBytes(data []byte) {
 		data[i], data[j] = data[j], data[i]
 	}
 }
-
+//ByteToHexString byte to hex string
 func ByteToHexString(data []byte) string{
 	return hex.EncodeToString(data)
 }

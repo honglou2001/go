@@ -19,13 +19,13 @@ func NewTXOutput(value int, address string) *Output {
 	return txo
 }
 
-// TXOutputs collects TXOutput
+// Outputs collects Outputs
 type Outputs struct {
 	Outputs []Output
 }
 
 
-// Serialize serializes TXOutputs
+// Serialize serializes Outputs
 func (outs Outputs) Serialize() []byte {
 	var buff bytes.Buffer
 

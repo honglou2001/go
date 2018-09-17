@@ -81,7 +81,7 @@ func (ws *Wallets) SaveToFile() {
 		beego.Error("SaveToFile WriteFile fail,", err)
 	}
 }
-
+//ToString return wallets json string
 func (ws *Wallets) ToString() string {
 	jsonStr, err := json.Marshal(ws)
 	if err != nil {

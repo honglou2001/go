@@ -16,7 +16,7 @@ import (
 )
 
 const utxoBucket = "chainstate"
-// UTXOSet represents UTXO set
+// UTXO represents UTXO set
 type UTXO struct {
 	BlockChain *BLModule.BlockChain
 }
