@@ -27,23 +27,24 @@ import (
 	"strings"
 	"sync"
 	"time"
+	BlModule "yqx_go/young_blockchain/blockchain"
 )
 
 // Block represents each 'item' in the blockchain
-type Block struct {
-	Index     int
-	Timestamp string
-	BPM       int
-	Hash      string
-	PrevHash  string
-}
+//type Block struct {
+//	Index     int
+//	Timestamp string
+//	BPM       int
+//	Hash      string
+//	PrevHash  string
+//}
 
 func StartRunner(defaultListen int) {
 	t := time.Now()
-	genesisBlock := Block{}
+	/*genesisBlock := Block{}
 	genesisBlock = Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
 
-	Blockchain = append(Blockchain, genesisBlock)
+	Blockchain = append(Blockchain, genesisBlock)*/
 
 	// LibP2P code uses golog to log messages. They log with different
 	// string IDs (i.e. "swarm"). We can control the verbosity level for
@@ -126,7 +127,7 @@ func StartRunner(defaultListen int) {
 }
 
 // Blockchain is a series of validated Blocks
-var Blockchain []Block
+//var Blockchain []Block
 
 var mutex = &sync.Mutex{}
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
@@ -203,7 +204,9 @@ func readData(rw *bufio.ReadWriter) {
 		}
 		if str != "\n" {
 
-			chain := make([]Block, 0)
+			//read block from ReadWriter
+
+			/*chain := make([]BlModule.Block, 0)
 			if err := json.Unmarshal([]byte(str), &chain); err != nil {
 				log.Fatal(err)
 			}
@@ -219,19 +222,19 @@ func readData(rw *bufio.ReadWriter) {
 				// Green console color: 	\x1b[32m
 				// Reset console color: 	\x1b[0m
 				fmt.Printf("\x1b[32m%s\x1b[0m> ", string(bytes))
-			}
+			}*/
 			mutex.Unlock()
 		}
 	}
 }
 
 func writeData(rw *bufio.ReadWriter) {
-
 	go func() {
 		for {
 			time.Sleep(5 * time.Second)
 			mutex.Lock()
-			bytes, err := json.Marshal(Blockchain)
+			//write a block
+			bytes, err := json.Marshal(BlModule.Block{})
 			if err != nil {
 				log.Println(err)
 			}
@@ -279,11 +282,10 @@ func writeData(rw *bufio.ReadWriter) {
 		rw.Flush()
 		mutex.Unlock()
 	}
-
 }
 
 // make sure block is valid by checking index, and comparing the hash of the previous block
-func isBlockValid(newBlock, oldBlock Block) bool {
+/*func isBlockValid(newBlock, oldBlock Block) bool {
 	if oldBlock.Index+1 != newBlock.Index {
 		return false
 	}
@@ -297,19 +299,19 @@ func isBlockValid(newBlock, oldBlock Block) bool {
 	}
 
 	return true
-}
+}*/
 
 // SHA256 hashing
-func calculateHash(block Block) string {
+/*func calculateHash(block Block) string {
 	record := strconv.Itoa(block.Index) + block.Timestamp + strconv.Itoa(block.BPM) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
 	return hex.EncodeToString(hashed)
-}
+}*/
 
 // create a new block using previous block's hash
-func generateBlock(oldBlock Block, BPM int) Block {
+/*func generateBlock(oldBlock Block, BPM int) Block {
 
 	var newBlock Block
 
@@ -322,4 +324,4 @@ func generateBlock(oldBlock Block, BPM int) Block {
 	newBlock.Hash = calculateHash(newBlock)
 
 	return newBlock
-}
+}*/

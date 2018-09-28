@@ -7,7 +7,8 @@ import (
 
 func TestStartRunner(t *testing.T)  {
 
-	StartRunner()
+
+	StartRunner(10000)
 
 	fmt.Printf("StartRunner: %s\n", "StartRunner")
 }
