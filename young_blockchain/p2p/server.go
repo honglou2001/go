@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
+	//"crypto/sha256"
+	//"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 	golog "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-crypto"
@@ -38,22 +38,13 @@ import (
 //	Hash      string
 //	PrevHash  string
 //}
+func initialAddress(listentPort int) (host.Host, ma.Multiaddr, error) {
 
-func StartRunner(defaultListen int) {
-	t := time.Now()
-	/*genesisBlock := Block{}
-	genesisBlock = Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
-
-	Blockchain = append(Blockchain, genesisBlock)*/
-
-	// LibP2P code uses golog to log messages. They log with different
-	// string IDs (i.e. "swarm"). We can control the verbosity level for
-	// all loggers with:
 	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
 
 	// Parse options from the command line
-	listenF := flag.Int("l", defaultListen, "wait for incoming connections")
-	target := flag.String("d", "", "target peer to dial")
+	listenF := flag.Int("l", listentPort, "wait for incoming connections")
+	//target := flag.String("d", "", "target peer to dial")
 	secio := flag.Bool("secio", false, "enable secio")
 	seed := flag.Int64("seed", 0, "set random seed for id generation")
 	flag.Parse()
@@ -63,11 +54,48 @@ func StartRunner(defaultListen int) {
 	}
 
 	// Make a host that listens on the given multiaddress
-	ha, err := makeBasicHost(*listenF, *secio, *seed)
+	ha, addr, err := makeBasicHost(*listenF, *secio, *seed)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	return ha, addr, nil
+
+}
+func Cli_start(listentPort int) {
+	//t := time.Now()
+	/*genesisBlock := Block{}
+	genesisBlock = Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
+
+	Blockchain = append(Blockchain, genesisBlock)*/
+
+	// LibP2P code uses golog to log messages. They log with different
+	// string IDs (i.e. "swarm"). We can control the verbosity level for
+	// all loggers with:
+	//golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
+	//
+	//// Parse options from the command line
+	//listenF := flag.Int("l", listentPort, "wait for incoming connections")
+	//target := flag.String("d", "", "target peer to dial")
+	//secio := flag.Bool("secio", false, "enable secio")
+	//seed := flag.Int64("seed", 0, "set random seed for id generation")
+	//flag.Parse()
+	//
+	//if *listenF == 0 {
+	//	log.Fatal("Please provide a port to bind on with -l")
+	//}
+
+	// Make a host that listens on the given multiaddress
+	ha, fullAddr, err := initialAddress(listentPort)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("StartRunner run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", listentPort+1, fullAddr)
+	StartRunner(ha)
+}
+
+func StartRunner(ha host.Host) {
+	target := flag.String("d", "", "target peer to dial")
 	if *target == "" {
 		log.Println("listening for connections")
 		// Set a stream handler on host A. /p2p/1.0.0 is
@@ -132,7 +160,7 @@ func StartRunner(defaultListen int) {
 var mutex = &sync.Mutex{}
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
 // given multiaddress. It will use secio if secio is true.
-func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error) {
+func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, ma.Multiaddr, error) {
 
 	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
 	// deterministic randomness source to make generated keys stay the same
@@ -146,9 +174,51 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 
 	// Generate a key pair for this host. We will use it
 	// to obtain a valid host ID.
+	//priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//opts := []libp2p.Option{
+	//	libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", listenPort)),
+	//	libp2p.Identity(priv),
+	//}
+
+	//basicHost, err := libp2p.New(context.Background(), opts...)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	// Build host multiaddress
+	//hostAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ipfs/%s", basicHost.ID().Pretty()))
+
+	// Now we can build a full multiaddress to reach this host
+	// by encapsulating both addresses:
+	//addr := basicHost.Addrs()[0]
+	//fullAddr := addr.Encapsulate(hostAddr)
+
+	basicHost, fullAddr, err := createAddress(listenPort, r)
+	if err != nil {
+		return nil, nil, err
+	}
+	//log.Printf("I am1 %s\n", fullAddr)
+	log.Printf("I am2 %s\n", fullAddr)
+	if secio {
+		log.Printf("Now run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", listenPort+1, fullAddr)
+	} else {
+		log.Printf("Now run \"go run main.go -l %d -d %s\" on a different terminal\n", listenPort+1, fullAddr)
+	}
+
+	return basicHost, fullAddr, nil
+}
+
+func createAddress(listenPort int, r io.Reader) (host.Host, ma.Multiaddr, error) {
+
+	// Generate a key pair for this host. We will use it
+	// to obtain a valid host ID.
 	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	opts := []libp2p.Option{
@@ -158,7 +228,7 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 
 	basicHost, err := libp2p.New(context.Background(), opts...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Build host multiaddress
@@ -168,14 +238,8 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 	// by encapsulating both addresses:
 	addr := basicHost.Addrs()[0]
 	fullAddr := addr.Encapsulate(hostAddr)
-	log.Printf("I am %s\n", fullAddr)
-	if secio {
-		log.Printf("Now run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", listenPort+1, fullAddr)
-	} else {
-		log.Printf("Now run \"go run main.go -l %d -d %s\" on a different terminal\n", listenPort+1, fullAddr)
-	}
 
-	return basicHost, nil
+	return basicHost, fullAddr, nil
 }
 
 func handleStream(s net.Stream) {
@@ -203,6 +267,7 @@ func readData(rw *bufio.ReadWriter) {
 			return
 		}
 		if str != "\n" {
+			fmt.Printf("readData:%s\n", str)
 
 			//read block from ReadWriter
 
@@ -234,7 +299,9 @@ func writeData(rw *bufio.ReadWriter) {
 			time.Sleep(5 * time.Second)
 			mutex.Lock()
 			//write a block
-			bytes, err := json.Marshal(BlModule.Block{})
+			block := &BlModule.Block{Timestamp: time.Now().Unix(), Transactions: nil, PrevBlockHash: nil,
+				Hash: []byte{}, Height: 0}
+			bytes, err := json.Marshal(block)
 			if err != nil {
 				log.Println(err)
 			}
@@ -262,7 +329,7 @@ func writeData(rw *bufio.ReadWriter) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		newBlock := generateBlock(Blockchain[len(Blockchain)-1], bpm)
+		/*newBlock := generateBlock(Blockchain[len(Blockchain)-1], bpm)
 
 		if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
 			mutex.Lock()
@@ -275,10 +342,10 @@ func writeData(rw *bufio.ReadWriter) {
 			log.Println(err)
 		}
 
-		spew.Dump(Blockchain)
-
+		spew.Dump(Blockchain)*/
+		bytes := []byte{1, 2, 3, 4}
 		mutex.Lock()
-		rw.WriteString(fmt.Sprintf("%s\n", string(bytes)))
+		rw.WriteString(fmt.Sprintf("%s,%s\n", string(bytes), bpm))
 		rw.Flush()
 		mutex.Unlock()
 	}
