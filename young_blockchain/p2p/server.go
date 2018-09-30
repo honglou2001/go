@@ -1,4 +1,4 @@
-package p2p
+package main
 
 import (
 	"bufio"
@@ -7,7 +7,6 @@ import (
 	//"crypto/sha256"
 	//"encoding/hex"
 	"encoding/json"
-	"flag"
 	"fmt"
 	//"github.com/davecgh/go-spew/spew"
 	golog "github.com/ipfs/go-log"
@@ -38,23 +37,28 @@ import (
 //	Hash      string
 //	PrevHash  string
 //}
-func initialAddress(listentPort int) (host.Host, ma.Multiaddr, error) {
+
+type p2pObject struct {
+	listenFport    int
+}
+
+func InitialAddress(listentPort int) (host.Host, ma.Multiaddr, error) {
 
 	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
 
 	// Parse options from the command line
-	listenF := flag.Int("l", listentPort, "wait for incoming connections")
+	listenF := listentPort //flag.Int("l", listentPort, "wait for incoming connections")
 	//target := flag.String("d", "", "target peer to dial")
-	secio := flag.Bool("secio", false, "enable secio")
-	seed := flag.Int64("seed", 0, "set random seed for id generation")
-	flag.Parse()
+	secio := false //flag.Bool("secio", false, "enable secio")
+	seed := int64(0) //flag.Int64("seed", 0, "set random seed for id generation")
+	//flag.Parse()
 
-	if *listenF == 0 {
+	if listenF == 0 {
 		log.Fatal("Please provide a port to bind on with -l")
 	}
 
 	// Make a host that listens on the given multiaddress
-	ha, addr, err := makeBasicHost(*listenF, *secio, *seed)
+	ha, addr, err := makeBasicHost(listenF, secio, seed)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,17 +90,17 @@ func Cli_start(listentPort int) {
 	//}
 
 	// Make a host that listens on the given multiaddress
-	ha, fullAddr, err := initialAddress(listentPort)
+	ha, fullAddr, err := InitialAddress(listentPort)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("StartRunner run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", listentPort+1, fullAddr)
-	StartRunner(ha)
+	StartRunner(ha,"")
 }
 
-func StartRunner(ha host.Host) {
-	target := flag.String("d", "", "target peer to dial")
-	if *target == "" {
+func StartRunner(ha host.Host,targetAddr string) {
+	target := targetAddr//flag.String("d", targetAddr, "target peer to dial")
+	if target == "" {
 		log.Println("listening for connections")
 		// Set a stream handler on host A. /p2p/1.0.0 is
 		// a user-defined protocol name.
@@ -109,7 +113,7 @@ func StartRunner(ha host.Host) {
 
 		// The following code extracts target's peer ID from the
 		// given multiaddress
-		ipfsaddr, err := ma.NewMultiaddr(*target)
+		ipfsaddr, err := ma.NewMultiaddr(target)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -287,8 +291,8 @@ func readData(rw *bufio.ReadWriter) {
 				// Green console color: 	\x1b[32m
 				// Reset console color: 	\x1b[0m
 				fmt.Printf("\x1b[32m%s\x1b[0m> ", string(bytes))
-			}*/
-			mutex.Unlock()
+			}
+			mutex.Unlock()*/
 		}
 	}
 }
@@ -308,7 +312,7 @@ func writeData(rw *bufio.ReadWriter) {
 			mutex.Unlock()
 
 			mutex.Lock()
-			rw.WriteString(fmt.Sprintf("%s\n", string(bytes)))
+			rw.WriteString(fmt.Sprintf("writeData: %s\n", string(bytes)))
 			rw.Flush()
 			mutex.Unlock()
 
@@ -345,7 +349,7 @@ func writeData(rw *bufio.ReadWriter) {
 		spew.Dump(Blockchain)*/
 		bytes := []byte{1, 2, 3, 4}
 		mutex.Lock()
-		rw.WriteString(fmt.Sprintf("%s,%s\n", string(bytes), bpm))
+		rw.WriteString(fmt.Sprintf("writeData: %s,%s\n", string(bytes), string(bpm)))
 		rw.Flush()
 		mutex.Unlock()
 	}
