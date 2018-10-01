@@ -1,9 +1,11 @@
-package main
+package p2p
 
 import (
 	"bufio"
 	"context"
 	"crypto/rand"
+	"sync"
+
 	//"crypto/sha256"
 	//"encoding/hex"
 	"encoding/json"
@@ -21,44 +23,32 @@ import (
 	"io"
 	"log"
 	mrand "math/rand"
-	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 	BlModule "yqx_go/young_blockchain/blockchain"
 )
 
-// Block represents each 'item' in the blockchain
-//type Block struct {
-//	Index     int
-//	Timestamp string
-//	BPM       int
-//	Hash      string
-//	PrevHash  string
-//}
-
 type p2pObject struct {
-	listenFport    int
+	listenFport  int
+	mutex  *sync.Mutex
 }
 
-func InitialAddress(listentPort int) (host.Host, ma.Multiaddr, error) {
+func (server *p2pObject) InitialAddress() (host.Host, ma.Multiaddr, error) {
 
 	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
 
 	// Parse options from the command line
-	listenF := listentPort //flag.Int("l", listentPort, "wait for incoming connections")
-	//target := flag.String("d", "", "target peer to dial")
+	listenF := server.listenFport //flag.Int("l", listentPort, "wait for incoming connections")
 	secio := false //flag.Bool("secio", false, "enable secio")
 	seed := int64(0) //flag.Int64("seed", 0, "set random seed for id generation")
-	//flag.Parse()
 
 	if listenF == 0 {
 		log.Fatal("Please provide a port to bind on with -l")
 	}
 
 	// Make a host that listens on the given multiaddress
-	ha, addr, err := makeBasicHost(listenF, secio, seed)
+	ha, addr, err := server.makeBasicHost(listenF, secio, seed)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,50 +56,19 @@ func InitialAddress(listentPort int) (host.Host, ma.Multiaddr, error) {
 	return ha, addr, nil
 
 }
-func Cli_start(listentPort int) {
-	//t := time.Now()
-	/*genesisBlock := Block{}
-	genesisBlock = Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
 
-	Blockchain = append(Blockchain, genesisBlock)*/
-
-	// LibP2P code uses golog to log messages. They log with different
-	// string IDs (i.e. "swarm"). We can control the verbosity level for
-	// all loggers with:
-	//golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
-	//
-	//// Parse options from the command line
-	//listenF := flag.Int("l", listentPort, "wait for incoming connections")
-	//target := flag.String("d", "", "target peer to dial")
-	//secio := flag.Bool("secio", false, "enable secio")
-	//seed := flag.Int64("seed", 0, "set random seed for id generation")
-	//flag.Parse()
-	//
-	//if *listenF == 0 {
-	//	log.Fatal("Please provide a port to bind on with -l")
-	//}
-
-	// Make a host that listens on the given multiaddress
-	ha, fullAddr, err := InitialAddress(listentPort)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("StartRunner run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", listentPort+1, fullAddr)
-	StartRunner(ha,"")
-}
-
-func StartRunner(ha host.Host,targetAddr string) {
+func  (server *p2pObject) StartRunner(ha host.Host,targetAddr string) {
 	target := targetAddr//flag.String("d", targetAddr, "target peer to dial")
 	if target == "" {
 		log.Println("listening for connections")
 		// Set a stream handler on host A. /p2p/1.0.0 is
 		// a user-defined protocol name.
-		ha.SetStreamHandler("/p2p/1.0.0", handleStream)
+		ha.SetStreamHandler("/p2p/1.0.0", server.handleStream)
 
 		select {} // hang forever
 		/**** This is where the listener code ends ****/
 	} else {
-		ha.SetStreamHandler("/p2p/1.0.0", handleStream)
+		ha.SetStreamHandler("/p2p/1.0.0", server.handleStream)
 
 		// The following code extracts target's peer ID from the
 		// given multiaddress
@@ -150,21 +109,17 @@ func StartRunner(ha host.Host,targetAddr string) {
 		rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 
 		// Create a thread to read and write data.
-		go writeData(rw)
-		go readData(rw)
+		go server.writeData(rw,"StartRunner")
+		go server.readData(rw,"StartRunner")
 
 		select {} // hang forever
 
 	}
 }
 
-// Blockchain is a series of validated Blocks
-//var Blockchain []Block
-
-var mutex = &sync.Mutex{}
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
 // given multiaddress. It will use secio if secio is true.
-func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, ma.Multiaddr, error) {
+func (server *p2pObject) makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, ma.Multiaddr, error) {
 
 	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
 	// deterministic randomness source to make generated keys stay the same
@@ -176,32 +131,7 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, ma.Mu
 		r = mrand.New(mrand.NewSource(randseed))
 	}
 
-	// Generate a key pair for this host. We will use it
-	// to obtain a valid host ID.
-	//priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//opts := []libp2p.Option{
-	//	libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", listenPort)),
-	//	libp2p.Identity(priv),
-	//}
-
-	//basicHost, err := libp2p.New(context.Background(), opts...)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	// Build host multiaddress
-	//hostAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ipfs/%s", basicHost.ID().Pretty()))
-
-	// Now we can build a full multiaddress to reach this host
-	// by encapsulating both addresses:
-	//addr := basicHost.Addrs()[0]
-	//fullAddr := addr.Encapsulate(hostAddr)
-
-	basicHost, fullAddr, err := createAddress(listenPort, r)
+	basicHost, fullAddr, err := server.createAddress(listenPort, r)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -216,7 +146,7 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, ma.Mu
 	return basicHost, fullAddr, nil
 }
 
-func createAddress(listenPort int, r io.Reader) (host.Host, ma.Multiaddr, error) {
+func  (server *p2pObject) createAddress(listenPort int, r io.Reader) (host.Host, ma.Multiaddr, error) {
 
 	// Generate a key pair for this host. We will use it
 	// to obtain a valid host ID.
@@ -246,20 +176,20 @@ func createAddress(listenPort int, r io.Reader) (host.Host, ma.Multiaddr, error)
 	return basicHost, fullAddr, nil
 }
 
-func handleStream(s net.Stream) {
+func  (server *p2pObject) handleStream(s net.Stream) {
 
 	log.Println("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 
-	go readData(rw)
-	go writeData(rw)
+	go server.readData(rw,"handleStream")
+	go server.writeData(rw,"handleStream")
 
 	// stream 's' will stay open until you close it (or the other side closes it).
 }
 
-func readData(rw *bufio.ReadWriter) {
+func  (server *p2pObject) readData(rw *bufio.ReadWriter,category string) {
 
 	for {
 		str, err := rw.ReadString('\n')
@@ -271,7 +201,7 @@ func readData(rw *bufio.ReadWriter) {
 			return
 		}
 		if str != "\n" {
-			fmt.Printf("readData:%s\n", str)
+			fmt.Printf("readData:%s,%d,%s\n", str,server.listenFport,category)
 
 			//read block from ReadWriter
 
@@ -297,11 +227,11 @@ func readData(rw *bufio.ReadWriter) {
 	}
 }
 
-func writeData(rw *bufio.ReadWriter) {
+func  (server *p2pObject) writeData(rw *bufio.ReadWriter,category string) {
 	go func() {
 		for {
 			time.Sleep(5 * time.Second)
-			mutex.Lock()
+			server.mutex.Lock()
 			//write a block
 			block := &BlModule.Block{Timestamp: time.Now().Unix(), Transactions: nil, PrevBlockHash: nil,
 				Hash: []byte{}, Height: 0}
@@ -309,20 +239,22 @@ func writeData(rw *bufio.ReadWriter) {
 			if err != nil {
 				log.Println(err)
 			}
-			mutex.Unlock()
+			server.mutex.Unlock()
 
-			mutex.Lock()
-			rw.WriteString(fmt.Sprintf("writeData: %s\n", string(bytes)))
+			server.mutex.Lock()
+			rw.WriteString(fmt.Sprintf("writeData 1: %s,%d,%s\n", string(bytes), server.listenFport,category))
 			rw.Flush()
-			mutex.Unlock()
+			server.mutex.Unlock()
 
 		}
 	}()
 
-	stdReader := bufio.NewReader(os.Stdin)
+	time.Sleep(8 * time.Second)
+	//stdReader := bufio.NewReader(os.Stdin)
+	stdReader := bufio.NewReader(strings.NewReader(string("123\n")))
 
 	for {
-		fmt.Print("> ")
+		fmt.Print(">***> ")
 		sendData, err := stdReader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
@@ -347,52 +279,12 @@ func writeData(rw *bufio.ReadWriter) {
 		}
 
 		spew.Dump(Blockchain)*/
-		bytes := []byte{1, 2, 3, 4}
-		mutex.Lock()
-		rw.WriteString(fmt.Sprintf("writeData: %s,%s\n", string(bytes), string(bpm)))
+		bytes := []byte("byteHello")
+		server.mutex.Lock()
+		fmt.Printf("target555: %s,%d,%s\n", string(bytes[:]),server.listenFport,category)
+		rw.WriteString(fmt.Sprintf("writeData 2: %d,%d,%d,%s\n", 1,bpm, server.listenFport,category))
 		rw.Flush()
-		mutex.Unlock()
+		server.mutex.Unlock()
+		time.Sleep(20 * time.Second)
 	}
 }
-
-// make sure block is valid by checking index, and comparing the hash of the previous block
-/*func isBlockValid(newBlock, oldBlock Block) bool {
-	if oldBlock.Index+1 != newBlock.Index {
-		return false
-	}
-
-	if oldBlock.Hash != newBlock.PrevHash {
-		return false
-	}
-
-	if calculateHash(newBlock) != newBlock.Hash {
-		return false
-	}
-
-	return true
-}*/
-
-// SHA256 hashing
-/*func calculateHash(block Block) string {
-	record := strconv.Itoa(block.Index) + block.Timestamp + strconv.Itoa(block.BPM) + block.PrevHash
-	h := sha256.New()
-	h.Write([]byte(record))
-	hashed := h.Sum(nil)
-	return hex.EncodeToString(hashed)
-}*/
-
-// create a new block using previous block's hash
-/*func generateBlock(oldBlock Block, BPM int) Block {
-
-	var newBlock Block
-
-	t := time.Now()
-
-	newBlock.Index = oldBlock.Index + 1
-	newBlock.Timestamp = t.String()
-	newBlock.BPM = BPM
-	newBlock.PrevHash = oldBlock.Hash
-	newBlock.Hash = calculateHash(newBlock)
-
-	return newBlock
-}*/
