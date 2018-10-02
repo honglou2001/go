@@ -5,6 +5,9 @@ import (
 	"log"
 	"sync"
 	"time"
+	"yqx_go/young_blockchain/common"
+	TxModule "yqx_go/young_blockchain/transactions"
+	"yqx_go/young_blockchain/consensus"
 )
 //Run run test
 func Run() {
@@ -15,7 +18,13 @@ func Run() {
 	//third
 	RunServer(10003,target3)
 
-	time.Sleep(60 * time.Second)
+	time.Sleep(20 * time.Second)
+
+	cbtx := TxModule.NewCoinbaseTX(common.ToAddress, common.GenesisCoinbaseData)
+	genesis := consensus.NewGenesisBlock(cbtx)
+	fmt.Printf("target: %s\n", "mined a block")
+	WriteABlock(genesis)
+	time.Sleep(20 * time.Second)
 }
 //RunServer run test
 func RunServer(listentPort int,target string) (string){
@@ -35,6 +44,8 @@ func RunServer(listentPort int,target string) (string){
 	time.Sleep(10 * time.Second)
 	return target2
 }
+
+
 
 //func RunClient2(listentPort int,target2 string) {
 //	//second

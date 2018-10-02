@@ -34,6 +34,8 @@ type p2pObject struct {
 	mutex  *sync.Mutex
 }
 
+var Channel_Block = make(chan BlModule.Block, 3)
+
 func (server *p2pObject) InitialAddress() (host.Host, ma.Multiaddr, error) {
 
 	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
@@ -250,6 +252,18 @@ func  (server *p2pObject) writeData(rw *bufio.ReadWriter,category string) {
 	}()
 
 	time.Sleep(8 * time.Second)
+
+	for {
+		server.mutex.Lock()
+		v := <-Channel_Block
+		//spew.Dump(v)
+		fmt.Println("receive a block:", v.Height,time.Now())
+		//fmt.Printf("target555: %s,%d,%s\n", string(bytes[:]),server.listenFport,category)
+		rw.WriteString(fmt.Sprintf("target666 2: %d,%d,%d,%s\n", 1,v.Height, server.listenFport,category))
+		rw.Flush()
+		server.mutex.Unlock()
+	}
+
 	//stdReader := bufio.NewReader(os.Stdin)
 	stdReader := bufio.NewReader(strings.NewReader(string("123\n")))
 
@@ -287,4 +301,10 @@ func  (server *p2pObject) writeData(rw *bufio.ReadWriter,category string) {
 		server.mutex.Unlock()
 		time.Sleep(20 * time.Second)
 	}
+}
+
+func WriteABlock(block *BlModule.Block) {
+	Channel_Block <- *block
+	Channel_Block <- *block
+	Channel_Block <- *block
 }
