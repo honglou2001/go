@@ -36,12 +36,6 @@ func GetInstance() *BlockChain {
 	return m
 }
 
-//AddBlock 增加一个区块
-/*func (blockchain *BlockChain) AddBlock(newBlock *Block) {
-	val := append(chains, *newBlock)
-	ReplaceChain(val)
-}*/
-
 // AddBlock 增加一个区块
 func (bc *BlockChain) AddBlock(block *Block) {
 	err := bc.Db.Update(func(tx *bolt.Tx) error {

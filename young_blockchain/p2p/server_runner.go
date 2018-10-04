@@ -1,36 +1,47 @@
 package p2p
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"sync"
 	"time"
 	"yqx_go/young_blockchain/common"
-	TxModule "yqx_go/young_blockchain/transactions"
 	"yqx_go/young_blockchain/consensus"
+	TxModule "yqx_go/young_blockchain/transactions"
 )
+
 //Run run test
 func Run() {
+
+	listenF := flag.Int("l", 10001, "wait for incoming connections")
+	target := flag.String("d", "", "target peer to dial")
+	mineF := flag.Bool("m", false, "target peer to dial")
+	flag.Parse()
 	//first
-	target2 := RunServer(10001,"")
+	target2 := RunServer(*listenF, *target)
+	fmt.Printf("peer target: %s\n", target2)
 	//second
-	target3 := RunServer(10002,target2)
+	//target3 := RunServer(10002,target2)
+	//RunServer(10002, target2)
 	//third
-	RunServer(10003,target3)
+	//RunServer(10003, target2)
 
-	time.Sleep(20 * time.Second)
-
-	cbtx := TxModule.NewCoinbaseTX(common.ToAddress, common.GenesisCoinbaseData)
-	genesis := consensus.NewGenesisBlock(cbtx)
-	fmt.Printf("target: %s\n", "mined a block")
-	WriteABlock(genesis)
-	time.Sleep(20 * time.Second)
+	//time.Sleep(20 * time.Second)
+	if *mineF == true{
+		cbtx := TxModule.NewCoinbaseTX(common.ToAddress, common.GenesisCoinbaseData)
+		genesis := consensus.NewGenesisBlock(cbtx)
+		fmt.Printf("target: %s\n", "mined a block")
+		WriteABlock(genesis)
+		//time.Sleep(20 * time.Second)
+	}
 }
+
 //RunServer run test
-func RunServer(listentPort int,target string) (string){
+func RunServer(listentPort int, target string) (string) {
 	//first
 	var server *p2pObject
-	server = &p2pObject{listenFport:listentPort,mutex : &sync.Mutex{}}
+	server = &p2pObject{listenFport: listentPort, mutex: &sync.Mutex{}}
 	ha, fullAddr, err := server.InitialAddress()
 	go func() {
 		if err != nil {
@@ -44,23 +55,3 @@ func RunServer(listentPort int,target string) (string){
 	time.Sleep(10 * time.Second)
 	return target2
 }
-
-
-
-//func RunClient2(listentPort int,target2 string) {
-//	//second
-//	var server2 *p2pObject
-//	server2 = &p2pObject{listenFport:listentPort,mutex : &sync.Mutex{}}
-//	ha2, fullAddr2, err2 := server2.InitialAddress()
-//	go func() {
-//		if err2 != nil {
-//			log.Fatal(err2)
-//		}
-//		log.Printf("StartRunner2 run \"go run main.go -l %d -d %s -secio\" on a different terminal\n", listentPort, fullAddr2)
-//		//target2 := fmt.Sprintf("%s", fullAddr)
-//		fmt.Printf("target2: %s\n", target2)
-//		server2.StartRunner(ha2, target2)
-//	}()
-//	time.Sleep(80 * time.Second)
-//	fmt.Printf("TestStartRunner: %s\n", target2)
-//}

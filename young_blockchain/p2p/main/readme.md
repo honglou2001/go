@@ -1,0 +1,1 @@
+go run main.go -l 10005 -d /ip4/127.0.0.1/tcp/10002/ipfs/QmViDJAiEWYH3YAvZc2yrpzFBwveryVJ4oz9yk2n3KZZFx
