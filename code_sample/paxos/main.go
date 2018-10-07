@@ -1,4 +1,4 @@
-package Paxos
+package paxos
 
 import (
 	"time"

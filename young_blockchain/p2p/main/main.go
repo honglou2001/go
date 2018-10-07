@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 import "yqx_go/young_blockchain/p2p"
 
 var shouldQuit = make(chan struct{})
@@ -10,13 +12,16 @@ func main() {
 	p2p.Run()
 	fmt.Printf("TestStartRunner: %s\n", "running")
 
+	//accepat cmd like Miner,Transaction etc
+	go p2p.AcceptCmd()
+
 	for {
 		select {
 		case <-shouldQuit:
 			//cleanUp()
 			fmt.Printf("TestStartRunner: %s\n", "quiting")
 			return
-		 //default:
+			//default:
 			//fmt.Printf("TestStartRunner: %s\n", time.Now())
 		}
 	}

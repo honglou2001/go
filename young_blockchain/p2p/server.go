@@ -203,7 +203,12 @@ func  (server *p2pObject) readData(rw *bufio.ReadWriter,category string) {
 			return
 		}
 		if str != "\n" {
-			fmt.Printf("readData:%s,%d,%s\n", str,server.listenFport,category)
+			server.mutex.Lock()
+			str_to_send := strings.Replace(str, "\n", "", -1)
+			fmt.Printf("read to print:%s,%d,%s,%s\n", str_to_send,server.listenFport,category,time.Now())
+			//rw.WriteString(fmt.Sprintf("read to write: %d,%s,%d,%s\n", 1,str_to_send, server.listenFport,category))
+			//rw.Flush()
+			server.mutex.Unlock()
 
 			//read block from ReadWriter
 
