@@ -8,7 +8,7 @@ import (
 )
 
 //运行一次客户端，提交参数，获取结果
-func runClient() {
+func RunClient() {
 	client, err := net.Dial("tcp", "127.0.0.1:1234")
 	if err != nil {
 		log.Fatal("dialing:", err)

@@ -19,31 +19,29 @@ import (
 	"github.com/libp2p/go-libp2p-peer"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
 	ma "github.com/multiformats/go-multiaddr"
-	gologging "github.com/whyrusleeping/go-logging"
 	"io"
 	"log"
 	mrand "math/rand"
-	"strconv"
 	"strings"
 	"time"
 	BlModule "yqx_go/young_blockchain/blockchain"
 )
 
 type p2pObject struct {
-	listenFport  int
-	mutex  *sync.Mutex
+	listenFport int
+	mutex       *sync.Mutex
 }
 
 var Channel_Block = make(chan BlModule.Block, 3)
 
 func (server *p2pObject) InitialAddress() (host.Host, ma.Multiaddr, error) {
 
-	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
+	golog.SetAllLoggers(golog.LevelDebug) // Change to DEBUG for extra info
 
 	// Parse options from the command line
 	listenF := server.listenFport //flag.Int("l", listentPort, "wait for incoming connections")
-	secio := false //flag.Bool("secio", false, "enable secio")
-	seed := int64(0) //flag.Int64("seed", 0, "set random seed for id generation")
+	secio := false                //flag.Bool("secio", false, "enable secio")
+	seed := int64(0)              //flag.Int64("seed", 0, "set random seed for id generation")
 
 	if listenF == 0 {
 		log.Fatal("Please provide a port to bind on with -l")
@@ -59,8 +57,8 @@ func (server *p2pObject) InitialAddress() (host.Host, ma.Multiaddr, error) {
 
 }
 
-func  (server *p2pObject) StartRunner(ha host.Host,targetAddr string) {
-	target := targetAddr//flag.String("d", targetAddr, "target peer to dial")
+func (server *p2pObject) StartRunner(ha host.Host, targetAddr string) {
+	target := targetAddr //flag.String("d", targetAddr, "target peer to dial")
 	if target == "" {
 		log.Println("listening for connections")
 		// Set a stream handler on host A. /p2p/1.0.0 is
@@ -111,8 +109,8 @@ func  (server *p2pObject) StartRunner(ha host.Host,targetAddr string) {
 		rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 
 		// Create a thread to read and write data.
-		go server.writeData(rw,"StartRunner")
-		go server.readData(rw,"StartRunner")
+		go server.writeData(rw, "StartRunner")
+		go server.readData(rw, "StartRunner")
 
 		select {} // hang forever
 
@@ -148,7 +146,7 @@ func (server *p2pObject) makeBasicHost(listenPort int, secio bool, randseed int6
 	return basicHost, fullAddr, nil
 }
 
-func  (server *p2pObject) createAddress(listenPort int, r io.Reader) (host.Host, ma.Multiaddr, error) {
+func (server *p2pObject) createAddress(listenPort int, r io.Reader) (host.Host, ma.Multiaddr, error) {
 
 	// Generate a key pair for this host. We will use it
 	// to obtain a valid host ID.
@@ -178,20 +176,20 @@ func  (server *p2pObject) createAddress(listenPort int, r io.Reader) (host.Host,
 	return basicHost, fullAddr, nil
 }
 
-func  (server *p2pObject) handleStream(s net.Stream) {
+func (server *p2pObject) handleStream(s net.Stream) {
 
 	log.Println("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 
-	go server.readData(rw,"handleStream")
-	go server.writeData(rw,"handleStream")
+	go server.readData(rw, "handleStream")
+	go server.writeData(rw, "handleStream")
 
 	// stream 's' will stay open until you close it (or the other side closes it).
 }
 
-func  (server *p2pObject) readData(rw *bufio.ReadWriter,category string) {
+func (server *p2pObject) readData(rw *bufio.ReadWriter, category string) {
 
 	for {
 		str, err := rw.ReadString('\n')
@@ -205,7 +203,7 @@ func  (server *p2pObject) readData(rw *bufio.ReadWriter,category string) {
 		if str != "\n" {
 			server.mutex.Lock()
 			str_to_send := strings.Replace(str, "\n", "", -1)
-			fmt.Printf("read to print:%s,%d,%s,%s\n", str_to_send,server.listenFport,category,time.Now())
+			fmt.Printf("read to print:%s,%d,%s,%s\n", str_to_send, server.listenFport, category, time.Now())
 			//rw.WriteString(fmt.Sprintf("read to write: %d,%s,%d,%s\n", 1,str_to_send, server.listenFport,category))
 			//rw.Flush()
 			server.mutex.Unlock()
@@ -234,7 +232,7 @@ func  (server *p2pObject) readData(rw *bufio.ReadWriter,category string) {
 	}
 }
 
-func  (server *p2pObject) writeData(rw *bufio.ReadWriter,category string) {
+func (server *p2pObject) writeData(rw *bufio.ReadWriter, category string) {
 	go func() {
 		for {
 			time.Sleep(5 * time.Second)
@@ -249,63 +247,63 @@ func  (server *p2pObject) writeData(rw *bufio.ReadWriter,category string) {
 			server.mutex.Unlock()
 
 			server.mutex.Lock()
-			rw.WriteString(fmt.Sprintf("writeData 1: %s,%d,%s\n", string(bytes), server.listenFport,category))
+			rw.WriteString(fmt.Sprintf("writeData 1: %s,%d,%s\n", string(bytes), server.listenFport, category))
 			rw.Flush()
 			server.mutex.Unlock()
 
 		}
 	}()
 
-	time.Sleep(8 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	for {
 		server.mutex.Lock()
 		v := <-Channel_Block
 		//spew.Dump(v)
-		fmt.Println("receive a block:", v.Height,time.Now())
+		fmt.Println("receive a block:", v.Height, time.Now())
 		//fmt.Printf("target555: %s,%d,%s\n", string(bytes[:]),server.listenFport,category)
-		rw.WriteString(fmt.Sprintf("target666 2: %d,%d,%d,%s\n", 1,v.Height, server.listenFport,category))
+		rw.WriteString(fmt.Sprintf("target666 2: %d,%d,%d,%s\n", 1, v.Height, server.listenFport, category))
 		rw.Flush()
 		server.mutex.Unlock()
 	}
 
 	//stdReader := bufio.NewReader(os.Stdin)
-	stdReader := bufio.NewReader(strings.NewReader(string("123\n")))
+	//stdReader := bufio.NewReader(strings.NewReader(string("123\n")))
 
-	for {
-		fmt.Print(">***> ")
-		sendData, err := stdReader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		sendData = strings.Replace(sendData, "\n", "", -1)
-		bpm, err := strconv.Atoi(sendData)
-		if err != nil {
-			log.Fatal(err)
-		}
-		/*newBlock := generateBlock(Blockchain[len(Blockchain)-1], bpm)
-
-		if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
-			mutex.Lock()
-			Blockchain = append(Blockchain, newBlock)
-			mutex.Unlock()
-		}
-
-		bytes, err := json.Marshal(Blockchain)
-		if err != nil {
-			log.Println(err)
-		}
-
-		spew.Dump(Blockchain)*/
-		bytes := []byte("byteHello")
-		server.mutex.Lock()
-		fmt.Printf("target555: %s,%d,%s\n", string(bytes[:]),server.listenFport,category)
-		rw.WriteString(fmt.Sprintf("writeData 2: %d,%d,%d,%s\n", 1,bpm, server.listenFport,category))
-		rw.Flush()
-		server.mutex.Unlock()
-		time.Sleep(20 * time.Second)
-	}
+	//for {
+	//	fmt.Print(">***> ")
+	//	sendData, err := stdReader.ReadString('\n')
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	sendData = strings.Replace(sendData, "\n", "", -1)
+	//	bpm, err := strconv.Atoi(sendData)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	newBlock := generateBlock(Blockchain[len(Blockchain)-1], bpm)
+	//
+	//	if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
+	//		mutex.Lock()
+	//		Blockchain = append(Blockchain, newBlock)
+	//		mutex.Unlock()
+	//	}
+	//
+	//	bytes, err := json.Marshal(Blockchain)
+	//	if err != nil {
+	//		log.Println(err)
+	//	}
+	//
+	//	spew.Dump(Blockchain)
+	//	bytes := []byte("byteHello")
+	//	server.mutex.Lock()
+	//	fmt.Printf("target555: %s,%d,%s\n", string(bytes[:]), server.listenFport, category)
+	//	rw.WriteString(fmt.Sprintf("writeData 2: %d,%d,%d,%s\n", 1, bpm, server.listenFport, category))
+	//	rw.Flush()
+	//	server.mutex.Unlock()
+	//	time.Sleep(20 * time.Second)
+	//}
 }
 
 func WriteABlock(block *BlModule.Block) {

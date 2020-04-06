@@ -39,3 +39,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 *.stackdump
+
+### Go Patch ###
+vendor/*
+!vendor/vendor.json
+

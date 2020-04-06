@@ -15,7 +15,7 @@ func TestReadBlockChain(t *testing.T) {
 	blockChainRead := ReadBlockChain(nodeID)
 	fmt.Println(blockChainRead)
 	//deleteSuccess := DeleteBlockDBFile(nodeID)
-	if len(blockChainRead) != 2 {
+	if len(blockChainRead) < 2 {
 		t.Error("TestReadBlockChain is error")
 	}
 }

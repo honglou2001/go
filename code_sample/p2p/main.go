@@ -129,6 +129,7 @@ func StartRunner(defaultListen int) {
 var Blockchain []Block
 
 var mutex = &sync.Mutex{}
+
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
 // given multiaddress. It will use secio if secio is true.
 func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error) {

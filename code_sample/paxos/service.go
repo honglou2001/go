@@ -96,7 +96,7 @@ func (ps *PaxosService) Process(args *Args, reply *Reply) error {
 }
 
 //启动服务
-func startServer() {
+func StartServer() {
 	fmt.Println("start server...")
 	ps := PaxosService{
 		Host:    "127.0.0.1",
